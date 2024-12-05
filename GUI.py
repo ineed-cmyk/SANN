@@ -1,6 +1,8 @@
 from kivy.lang import Builder
 
 from kivymd.app import MDApp
+from kivymd.uix.screenmanager import MDScreenManager
+from kivymd.uix.screen import MDScreen
 
 KV = '''
 MDScreen:
@@ -71,6 +73,13 @@ MDScreen:
 
 '''
 
+class firstwindow(MDScreen):
+    pass
+class secondwindow(MDScreen):
+    pass
+class windowmanager(MDScreenManager):
+    pass
+
 
 class Example(MDApp):
 
@@ -85,8 +94,6 @@ class Example(MDApp):
         self.duration = duration
         self.max_people = max_people
 
-    def btnfunc(self, obj):
-        print("button is pressed!!")
     def build(self):
         self.theme_cls.primary_palette = "Blue"
         return Builder.load_string(KV)
