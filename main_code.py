@@ -18,30 +18,33 @@ MDScreen:
         adaptive_height: True
         size_hint_x: .5
         pos_hint: {"center_x": .5, "center_y": .5}
-        
-        MDTextField:
-    
-            MDTextFieldHintText:
-                text: "Enter"
-    
-            MDTextFieldHelperText:
-                text: "Helper text"
-                mode: "persistent"
-    
-            MDTextFieldTrailingIcon:
-                icon: "information"
+      
+        MDSlider:
+            step: 1
+            max: 30
+            value: 1
+
+            MDSliderHandle:
+
+            MDSliderValueLabel:
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "80dp"
+        adaptive_height: True
+        size_hint_x: .5
+        pos_hint: {"center_x": .5, "center_y": .4}
+      
+        MDSlider:
+            step: 1
+            max: 30
+            value: 1
+
+            MDSliderHandle:
+
+            MDSliderValueLabel:
                 
-        MDTextField:
-            
-            MDTextFieldHintText:
-                text: "Enter"
-    
-            MDTextFieldHelperText:
-                text: "Helper text"
-                mode: "persistent"
-    
-            MDTextFieldTrailingIcon:
-                icon: "information"
+                
+
                     
                 
 
