@@ -17,11 +17,14 @@ MDScreen:
         spacing: "80dp"
         adaptive_height: True
         size_hint_x: .5
-        pos_hint: {"center_x": .5, "center_y": .5}
+        pos_hint: {"center_x": .5, "center_y": .6}
       
         MDSlider:
+            id: duration_slider
+
             step: 1
             max: 30
+            min:1
             value: 1
 
             MDSliderHandle:
@@ -35,8 +38,11 @@ MDScreen:
         pos_hint: {"center_x": .5, "center_y": .4}
       
         MDSlider:
+            id: people_slider
+
             step: 1
-            max: 30
+            max: 15
+            min:1
             value: 1
 
             MDSliderHandle:
@@ -58,17 +64,33 @@ MDScreen:
     MDButton:
         style: "filled"
         pos_hint: {"center_x": .42, "center_y": .26}
-
+        on_press: app.save_values()
         MDButtonText:
             text: "Enter"
+            
 
 '''
 
 
 class Example(MDApp):
+
+
+    def save_values(self):
+        duration = self.root.ids.duration_slider.value
+        max_people = self.root.ids.people_slider.value
+
+        print(f"Duration: {duration} days")
+        print(f"Max People: {max_people}")
+
+        self.duration = duration
+        self.max_people = max_people
+
+    def btnfunc(self, obj):
+        print("button is pressed!!")
     def build(self):
         self.theme_cls.primary_palette = "Blue"
         return Builder.load_string(KV)
+
 
 
 Example().run()
