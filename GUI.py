@@ -5,12 +5,10 @@ from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.screen import MDScreen
 
 KV = '''
-Window_Manager:
-    first_window:
-    second_window:
-<first_window>:
-    name: "first"
+MDScreenManager:
+
     MDScreen:
+        name: "screen A"
         md_bg_color: self.theme_cls.backgroundColor
         MDLabel:
             text: "Enter Duration(Days)"
@@ -18,14 +16,14 @@ Window_Manager:
         MDLabel:
             text: "Enter Max People"
             pos_hint: {"center_x": .75, "center_y": .47}
-    
+            
         MDBoxLayout:
             orientation: "vertical"
             spacing: "80dp"
             adaptive_height: True
             size_hint_x: .5
             pos_hint: {"center_x": .5, "center_y": .6}
-    
+          
             MDSlider:
                 id: duration_slider
     
@@ -43,7 +41,7 @@ Window_Manager:
             adaptive_height: True
             size_hint_x: .5
             pos_hint: {"center_x": .5, "center_y": .4}
-    
+          
             MDSlider:
                 id: people_slider
     
@@ -55,48 +53,41 @@ Window_Manager:
                 MDSliderHandle:
     
                 MDSliderValueLabel:
+                    
+                    
     
+                        
+                    
     
-
-
-
-
-    MDButton:
-        style: "outlined"
-        pos_hint: {"center_x": .3, "center_y": .26}
-        on_release: app.root.current = "second"
-
-        MDButtonText:
-            text: "Back"
-
-    MDButton:
-        style: "filled"
-        pos_hint: {"center_x": .42, "center_y": .26}
-        on_press: app.save_values()
-        MDButtonText:
-            text: "Enter"
-
-
-    <second_window>:
-    name: "second"
-    MDScreen:
-        md_bg_color: self.theme_cls.backgroundColor
-
+        MDButton:
+            style: "outlined"
+            pos_hint: {"center_x": .3, "center_y": .26}
+            on_release:
+                root.current = "screen A"
+            MDButtonText:
+                text: "Back"
+            
+                
         MDButton:
             style: "filled"
-            pos_hint: {"center_x": .5, "center_y": .5}
-            on_release: app.root.current = "first"
+            pos_hint: {"center_x": .42, "center_y": .26}
+            on_press: app.save_values()
             MDButtonText:
-                text: "Goback"
-                
-'''
+                text: "Enter"
+    MDScreen:
+        name: "screen B"
+        md_bg_color: "cadetblue"
+        
+        MDButton:
+            pos_hint: {"center_x": .5}
+            y: "36dp"
+            on_release:
+                root.current = "screen A"
 
-class first_window(MDScreen):
-    pass
-class second_window(MDScreen):
-    pass
-class Window_Manager(MDScreenManager):
-    pass
+            MDButtonText:
+                text: "Move Hero To Screen A"
+
+'''
 
 
 class Example(MDApp):
