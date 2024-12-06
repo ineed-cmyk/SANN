@@ -4,9 +4,9 @@ from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.screen import MDScreen
 
+
 KV = '''
 MDScreenManager:
-
     MDScreen:
         name: "screen A"
         md_bg_color: self.theme_cls.backgroundColor
@@ -79,13 +79,12 @@ MDScreenManager:
         md_bg_color: "cadetblue"
         
         MDButton:
-            pos_hint: {"center_x": .5}
-            y: "36dp"
+            pos_hint: {"center_x": .5,"center_y": .5}
             on_release:
                 root.current = "screen A"
 
             MDButtonText:
-                text: "Move Hero To Screen A"
+                text: "Start"
 
 '''
 
@@ -106,6 +105,7 @@ class Example(MDApp):
     def build(self):
         self.theme_cls.primary_palette = "Blue"
         return Builder.load_string(KV)
+
 
 
 
