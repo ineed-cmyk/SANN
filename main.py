@@ -1,5 +1,8 @@
 import mysql.connector
 import csv
+import pprint 
+pp = pprint.PrettyPrinter(indent=4)
+
 
 cnx = mysql.connector.connect(
         username = "root",
@@ -10,7 +13,7 @@ cnx = mysql.connector.connect(
 curs = cnx.cursor()
 
 # Building a dictionary of types
-categorieTotals = {
+categoryTotals = {
         "Lighting and Illumination" : 13,
         "Power and Batteries" : 15,
         "Tools and Equipment" : 61,
@@ -18,11 +21,12 @@ categorieTotals = {
         "Navigation and Signaling" : 18,
         "Medical Supplies" : 36,
         "Hygiene and Sanitation" : 31,
-        "Food and Water" : 14,
+        #"Food and Water" : 14,
         "Documentation and Emergency Funds" : 9,
         "Shelter and Clothing" : 9
 }
 
+# To calculate the weighted average
 weightage = {
         # Utility items make up 50% of the score
         "Lighting and Illumination" : 5,
@@ -56,10 +60,11 @@ def getData(condition,request, table):
 # Function to update data (NAZIA)
 
 # This function reads the CSV containing what is in the kit, and builds a dictionary to use in code.
+extract = {}
 def extractKitUtil(fi):
         with open(fi, "r") as fileObject:
                 csvObject = csv.reader(fileObject)
-                extract = {} 
+                global extract
 
                 # Note : Returns as nested tuples, hence we extract with [0][0]
                 for i in csvObject:
@@ -83,4 +88,43 @@ def extractKitUtil(fi):
 
                 return extract
 
-print(extractKitUtil("./sampleInput.csv"))
+# Function to aggregrate the score
+categoryScores = {
+        "Lighting and Illumination" : 0,
+        "Power and Batteries" : 0,
+        "Tools and Equipment" : 0,
+        "Fire and Warmth" : 0,
+        "Navigation and Signaling" : 0,
+        "Medical Supplies" : 0,
+        "Hygiene and Sanitation" : 0,
+        #"Food and Water" : 0,
+        "Documentation and Emergency Funds" : 0,
+        "Shelter and Clothing" : 0
+}
+def sumScore():
+        for i in extract:
+                iScore = extract[i]["SurvivalScore"]
+                cat = extract[i]["category"]
+                categoryScores[cat] += iScore
+
+# This function gives the overall weighted score for each category
+
+def weightScore():
+        finalScore = 0
+        for i in categoryScores:
+                # Percentage = x / total * 100
+                unWeight = categoryScores[i] / categoryTotals[i] * 100
+                # WeightedPercent = Percentage * (Weightage/100)
+                weighted = unWeight * (weightage[i]/100)
+                # Round down to 2 decimals
+                weightedRound = round(weighted,2)
+                
+                # Add it to final score
+                finalScore += weightedRound
+        print(f"Your final score is {finalScore}%")
+                
+
+
+extractKitUtil("./sampleInput.csv")
+sumScore()
+weightScore()
