@@ -1,5 +1,7 @@
 import mysql.connector
 import csv
+
+# Functionality to pretty print dictionaries
 import pprint 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -107,18 +109,35 @@ def sumScore():
                 cat = extract[i]["category"]
                 categoryScores[cat] += iScore
 
-# This function gives the overall weighted score for each category
+# This function gives percentage for each category
+categoryPercentage={
+        "Lighting and Illumination" : 0,
+        "Power and Batteries" : 0,
+        "Tools and Equipment" : 0,
+        "Fire and Warmth" : 0,
+        "Navigation and Signaling" : 0,
+        "Medical Supplies" : 0,
+        "Hygiene and Sanitation" : 0,
+        #"Food and Water" : 0,
+        "Documentation and Emergency Funds" : 0,
+        "Shelter and Clothing" : 0
+}
+def percentagePerCategory():
+        for i in categoryPercentage:
+                # Percentage = x / total * 100, rounded to 2 decimal places
+                unWeight = round(categoryScores[i] / categoryTotals[i] * 100,2)
+                categoryPercentage[i] = str(unWeight)+"%"
 
+
+# This function gives the overall weighted score
 def weightScore():
         finalScore = 0
         for i in categoryScores:
-                # Percentage = x / total * 100
-                unWeight = categoryScores[i] / categoryTotals[i] * 100
                 # WeightedPercent = Percentage * (Weightage/100)
-                weighted = unWeight * (weightage[i]/100)
+                # [-1] to not consider the percentage symbol
+                weighted = float(categoryPercentage[i][:-1]) * (weightage[i]/100)
                 # Round down to 2 decimals
                 weightedRound = round(weighted,2)
-                
                 # Add it to final score
                 finalScore += weightedRound
         print(f"Your final score is {finalScore}%")
@@ -127,4 +146,8 @@ def weightScore():
 
 extractKitUtil("./sampleInput.csv")
 sumScore()
+percentagePerCategory()
+print("Here is the scores per category : ")
+pp.pprint(categoryPercentage)
+print()
 weightScore()
