@@ -1,6 +1,6 @@
 import mysql.connector
 
-inpPass = input("Please Enter mysql connector : ")
+inpPass = input("Please Enter MYSQL password : ")
 
 try :
     print("Connecting to SQL...")
