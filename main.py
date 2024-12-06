@@ -42,27 +42,33 @@ weightage = {
 
 # Function to retrieve data (NAZIA)
 def getData(condition,request, table):
-    # c = input("Enter the item you want to fetch data for: ")
-    # v = input("Enter the data you want to retrieve from the item: ")
-    curs.execute(f"SELECT {request} FROM {table} WHERE Item = \"{condition}\"")
-    fetched = cur.fetchall()
-    return fetched
+        # c = input("Enter the item you want to fetch data for: ")
+        # v = input("Enter the data you want to retrieve from the item: ")
+        curs.execute(f"SELECT {request} FROM {table} WHERE Item = \"{condition}\"")
+        fetched = curs.fetchall()
+        #If no empty value
+        if fetched :
+                return fetched[0][0]
+        else:
+                return
 
 
 # Function to update data (NAZIA)
 
-# Function to give overall score to kit
-def rateAKitUtil(fi):
+# This function reads the CSV containing what is in the kit, and builds a dictionary to use in code.
+def extractKitUtil(fi):
         with open(fi, "r") as fileObject:
                 csvObject = csv.reader(fileObject)
                 extract = {} 
+
+                # Note : Returns as nested tuples, hence we extract with [0][0]
                 for i in csvObject:
                         icat = getData(i[0], "Category", "utility")
                         iscore = getData(i[0], "SurvivalScore", "utility")
                         ireq =  getData(i[0], "Required", "utility")
                         iweight =  getData(i[0], "WeightGram", "utility")
                         imax =  getData(i[0], "MaxPerPerson", "utility")
-                        iquant = i[2]
+                        iquant = i[1]
 
                         out = {
                                 "category" : icat,
@@ -73,8 +79,8 @@ def rateAKitUtil(fi):
                                 "Quantity" : iquant
                         }
 
-                        extract[i] = out
+                        extract[i[0]] = out
 
-                        return extract
+                return extract
 
-rateAKitUtil("./sampleInput.csv")
+print(extractKitUtil("./sampleInput.csv"))
