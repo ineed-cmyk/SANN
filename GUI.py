@@ -63,7 +63,7 @@ MDScreenManager:
             style: "outlined"
             pos_hint: {"center_x": .3, "center_y": .26}
             on_release:
-                root.current = "screen A"
+                root.current = "screen B"
             MDButtonText:
                 text: "Back"
             
