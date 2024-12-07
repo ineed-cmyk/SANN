@@ -27,16 +27,22 @@ MDScreen:
             MDBoxLayout:
                 adaptive_height: True
 
-                MDLabel:
-                    theme_font_size: "Custom"
-                    text: "OS Info"
-                    font_size: "55sp"
-                    adaptive_height: True
-                    padding: "10dp", "20dp", 0, 0
+            MDTextField:
+                mode: "outlined"
+                size_hint_x: None
+                width: "240dp"
+                pos_hint: {"center_x": .20, "center_y": .26}
+            MDButton:
+                style: "outlined"
+                pos_hint: {"center_x": .60, "center_y": .26}
+                MDButtonText:
+                    text: "Back"
 
-                MDIconButton:
-                    icon: "menu"
-                    pos_hint: {"center_y": .5}
+
+
+
+
+
 '''
 
 
