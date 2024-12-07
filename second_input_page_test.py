@@ -20,24 +20,25 @@ MDScreen:
             id: main_scroll
             orientation: "vertical"
             adaptive_height: True
-            padding: dp(16)  # Add padding around the entire content
-            spacing: dp(12)  # Add spacing between widgets
+            padding: dp(16)  
+            spacing: dp(12)  
 
             MDBoxLayout:
                 orientation: "horizontal"
                 adaptive_height: True
-                spacing: dp(8)  # Adjust spacing between the text field and button
+                spacing: dp(20)  # Adjust spacing between the text field and button
 
                 MDTextField:
                     id: inputfield
                     mode: "outlined"
-                    size_hint_x: 0.75
-                    hint_text: "Enter text"
+                    size_hint_x: None  # Ensure width is used
+                    width: dp(300)
 
                 MDButton:
-                    text: "Add"
-                    size_hint_x: 0.25
+                    width: dp(200)
                     on_release: app.on_start()
+                    MDButtonText:
+                        text: "Start"
 '''
 
 class Example(MDApp):
@@ -49,13 +50,15 @@ class Example(MDApp):
     def on_start(self):
         # Retrieve user input
         user_input = self.root.ids.inputfield.text.strip()
-
+        user_input_list = []
+        user_input_list.append(user_input)
         # Add the input to the list if it's not empty
-        if user_input:
+        for uservalues in user_input_list:
+
             self.root.ids.main_scroll.add_widget(
                 MDListItem(
                     MDListItemHeadlineText(
-                        text=user_input,
+                        text=uservalues,
                     ),
                 )
             )
