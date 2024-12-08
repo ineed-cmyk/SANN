@@ -16,7 +16,10 @@ curs = cnx.cursor()
 ###// HARD CODED REFERENCE VALUES ###
 
 # Max weight in grams (13 kg as per data online)
+# We need to fix this to consider large party sizes, maybe more bags?
 maxWeight = 13000
+
+
 # Required amount of calories per day
 """
 In implementing the revised MOU (March 1997), WFP and UNHCR will follow the WHO
@@ -55,19 +58,21 @@ categoryTotals = {
 # This function find the amount needed for the family size and days
 def modifyDaily(fi):
     global dailyWater, dailyCal
-    print(f"OG REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
+    #print(f"OG REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
     with open(fi, "r") as fileObject:
         csvObject = csv.reader(fileObject)
+        next(csvObject, None)  # skip the headers
         for i in csvObject:
             familyMembers = i[0]
             days = i[1]
+        
+        # Debug code
+        print(f"There are {familyMembers} people in your party, and you will be surving {days} days")
+
         totalReq = int(familyMembers) * int(days)
 
         dailyWater *= totalReq
         dailyCal *= totalReq
-
-        print(f"NEW REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
-
 
 modifyDaily("./sampleFamilyConfig.csv")
 
@@ -141,6 +146,8 @@ extract = {}
 def extractKitUtil(fi):
     with open(fi, "r") as fileObject:
         csvObject = csv.reader(fileObject)
+        next(csvObject, None)  # skip the headers
+
         global extract
 
         # Note : Returns as nested tuples, hence we extract with [0][0]
@@ -307,8 +314,8 @@ def checkConsumeables(curCal, curWater):
     lackingCal = 0
     lackingWater = 0
 
-    calPercent = curCal / dailyCal * 100
-    waterPercent = curWater / dailyWater * 100
+    calPercent = int(round(curCal / dailyCal * 100,0))
+    waterPercent = int(round(curWater / dailyWater * 100,0))
 
     if calPercent < 100:
         underCal = True
@@ -316,7 +323,7 @@ def checkConsumeables(curCal, curWater):
 
     if waterPercent < 100:
         underWater = True
-        lackingWater = dailyCal - curCal
+        lackingWater = dailyWater - curWater
 
     output = (
         (calPercent, underCal, lackingCal),
@@ -327,6 +334,8 @@ def checkConsumeables(curCal, curWater):
 
 
 ### TRIAL CODE ###
+
+print(f"NEW REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
 
 extractKitUtil("./sampleInput.csv")
 sumScore()
