@@ -3,11 +3,7 @@ from kivy.lang import Builder
 from kivy.metrics import dp
 
 from kivymd.app import MDApp
-from kivymd.uix.list import (
-    MDListItem,
-    MDListItemHeadlineText,
-    MDListItemTrailingIcon,
-)
+
 from kivymd.uix.card import MDCardSwipe
 from kivy.properties import StringProperty
 
@@ -70,8 +66,10 @@ MDScreen:
 class SwipeToDeleteItem(MDCardSwipe):
     text = StringProperty()
 
-user_input_list = []
 class Example(MDApp):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_input_list = []
     def build(self):
         self.theme_cls.theme_style = "Light"
         Window.size = [dp(350), dp(600)]
@@ -80,16 +78,21 @@ class Example(MDApp):
     def on_start(self):
 
         user_input = self.root.ids.inputfield.text.strip()
-        user_input_list.append(user_input)
-        for uservalues in user_input_list:
+        self.user_input_list.append(user_input)
 
-            self.root.ids.main_scroll.add_widget(SwipeToDeleteItem(text=f"{uservalues}"))
+
+        self.root.ids.main_scroll.add_widget(SwipeToDeleteItem(text=f"{user_input}"))
 
 
 
     def delete_item(self, list_item):
         """Remove the specified list item."""
+        if list_item.text in self.user_input_list:
+            self.user_input_list.remove(list_item.text)
         self.root.ids.main_scroll.remove_widget(list_item)
+
+
+
 
 Example().run()
 
