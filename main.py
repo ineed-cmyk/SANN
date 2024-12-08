@@ -61,7 +61,7 @@ def getData(condition,request, table):
 
 # Function to update data (NAZIA)
 
-# This function reads the CSV containing what is in the kit, and builds a dictionary to use in code.
+# This function reads the CSV containing what Utilities are in the kit, and builds a dictionary to use in code.
 extract = {}
 def extractKitUtil(fi):
         with open(fi, "r") as fileObject:
@@ -78,7 +78,7 @@ def extractKitUtil(fi):
                         iquant = i[1]
 
                         out = {
-                                "category" : icat,
+                                "Category" : icat,
                                 "SurvivalScore" : iscore,
                                 "Required" : ireq,
                                 "WeightGram" : iweight,
@@ -106,7 +106,7 @@ categoryScores = {
 def sumScore():
         for i in extract:
                 iScore = extract[i]["SurvivalScore"]
-                cat = extract[i]["category"]
+                cat = extract[i]["Category"]
                 categoryScores[cat] += iScore
 
 # This function gives percentage for each category
@@ -127,9 +127,11 @@ def percentagePerCategory():
                 # Percentage = x / total * 100, rounded to 2 decimal places
                 unWeight = round(categoryScores[i] / categoryTotals[i] * 100,2)
 
-                # If percentage is over 100, then just set it to 100
+                # If percentage is over 100, then just set it to 100. Same with negative scores
                 if unWeight > 100 :
                         unWeight = 100
+                elif unWeight <= 0:
+                        unWeight = 0
 
                 categoryPercentage[i] = str(unWeight)+"%"
 
@@ -148,8 +150,27 @@ def weightScore():
 
         print(f"Your final score is {finalScore}%")
 
-# This function normalizes for the quantity
+# This function normalizes for the quantity ie. Checks for too many items
+def normalWeight():
+        pp.pprint(extract)
+        for i in extract :
+                amountInKit = int(extract[i]['Quantity'])
+                maxAmount = int(extract[i]['MaxPerPerson'])
+                itemCat = extract[i]['Category']
+                if amountInKit == maxAmount:
+                        pass
 
+                ### HIGHLY SUBJECT TO CHANGE!!!
+                elif amountInKit > maxAmount:
+                        # Lower score for however much excess they put in
+                        punish = amountInKit - maxAmount
+                        categoryScores[itemCat] -= punish
+                # If the amount is less than the max, and they did not put in exact amount, we will reward them
+                elif amountInKit < maxAmount:
+                        # We account for any extra
+                        reward = amountInKit - 1
+                        categoryScores[itemCat] += reward
+                
 # This function calculates the calories
 
 # This function calculate the amount of water
@@ -166,3 +187,5 @@ print("Here is the scores per category : ")
 pp.pprint(categoryPercentage)
 print()
 weightScore()
+print()
+normalWeight()
