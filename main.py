@@ -14,7 +14,9 @@ cnx = mysql.connector.connect(
     )
 curs = cnx.cursor()
 
-# Bictionary of types
+###// HARD CODED REFERENCE DICTIONARIES ###
+
+# Bictionary of categories and their totals
 categoryTotals = {
         "Lighting and Illumination" : 13,
         "Power and Batteries" : 15,
@@ -46,6 +48,36 @@ weightage = {
         "Water" : 30
 }
 
+### HARD CODED REFERENCE DICTIONARIES //###
+
+# Dictionary to hold how much the user earnt
+categoryScores = {
+        "Lighting and Illumination" : 0,
+        "Power and Batteries" : 0,
+        "Tools and Equipment" : 0,
+        "Fire and Warmth" : 0,
+        "Navigation and Signaling" : 0,
+        "Medical Supplies" : 0,
+        "Hygiene and Sanitation" : 0,
+        #"Food and Water" : 0,
+        "Documentation and Emergency Funds" : 0,
+        "Shelter and Clothing" : 0
+}
+
+# Dictionary of the percentage the user earnt per category
+categoryPercentage={
+        "Lighting and Illumination" : 0,
+        "Power and Batteries" : 0,
+        "Tools and Equipment" : 0,
+        "Fire and Warmth" : 0,
+        "Navigation and Signaling" : 0,
+        "Medical Supplies" : 0,
+        "Hygiene and Sanitation" : 0,
+        #"Food and Water" : 0,
+        "Documentation and Emergency Funds" : 0,
+        "Shelter and Clothing" : 0
+}
+
 # Function to retrieve data (NAZIA)
 def getData(condition,request, table):
         # c = input("Enter the item you want to fetch data for: ")
@@ -57,7 +89,6 @@ def getData(condition,request, table):
                 return fetched[0][0]
         else:
                 return
-
 
 # Function to update data (NAZIA)
 
@@ -91,18 +122,6 @@ def extractKitUtil(fi):
                 return extract
 
 # Function to aggregrate the score
-categoryScores = {
-        "Lighting and Illumination" : 0,
-        "Power and Batteries" : 0,
-        "Tools and Equipment" : 0,
-        "Fire and Warmth" : 0,
-        "Navigation and Signaling" : 0,
-        "Medical Supplies" : 0,
-        "Hygiene and Sanitation" : 0,
-        #"Food and Water" : 0,
-        "Documentation and Emergency Funds" : 0,
-        "Shelter and Clothing" : 0
-}
 def sumScore():
         for i in extract:
                 iScore = extract[i]["SurvivalScore"]
@@ -110,18 +129,6 @@ def sumScore():
                 categoryScores[cat] += iScore
 
 # This function gives percentage for each category
-categoryPercentage={
-        "Lighting and Illumination" : 0,
-        "Power and Batteries" : 0,
-        "Tools and Equipment" : 0,
-        "Fire and Warmth" : 0,
-        "Navigation and Signaling" : 0,
-        "Medical Supplies" : 0,
-        "Hygiene and Sanitation" : 0,
-        #"Food and Water" : 0,
-        "Documentation and Emergency Funds" : 0,
-        "Shelter and Clothing" : 0
-}
 def percentagePerCategory():
         for i in categoryPercentage:
                 # Percentage = x / total * 100, rounded to 2 decimal places
@@ -172,14 +179,12 @@ def normalWeight():
                         categoryScores[itemCat] += reward
                 
 # This function calculates the calories
-
 # This function calculate the amount of water
 
 # This function find the amount needed for the family size and days
         # Daily water and calorie based
 
 # Function to determine the weight
-
 extractKitUtil("./sampleInput.csv")
 sumScore()
 percentagePerCategory()
