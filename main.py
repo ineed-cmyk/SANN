@@ -214,10 +214,27 @@ def getTotWater(fi):
                                 totWater += iWeight
                 return totWater
 
+# Function to determine the weight
+def getTotWeight(fi):
+         with open(fi, "r") as fileObject:
+                csvObject = csv.reader(fileObject)
+                totWeight = 0
+                # Note : Returns as nested tuples, hence we extract with [0][0]
+                for i in csvObject:
+                        # Check each table if the item is in there or not, then collect the weight
+                        iWeight = getData(i[0], "WeightGram", "water")
+                        if iWeight == None : 
+                                iWeight = getData(i[0], "WeightGram", "food")
+                        if iWeight == None :
+                                iWeight = getData(i[0], "WeightGram", "utility")
+                        
+                        if iWeight != None :
+                                #Multiply by quantitiy
+                                iWeight *= int(i[1])
+                                totWeight += iWeight
+                return totWeight
 # This function find the amount needed for the family size and days
         # Daily water and calorie based
-
-# Function to determine the weight
 extractKitUtil("./sampleInput.csv")
 sumScore()
 percentagePerCategory()
@@ -229,3 +246,4 @@ print()
 normalWeight()
 print("Total calories in kit :" ,getTotCal("./sampleInput.csv"))
 print("You have this many ml of water :",getTotWater("./sampleInput.csv"))
+print("The total weight of your kit is:", getTotWeight("./sampleInput.csv"))
