@@ -16,6 +16,9 @@ curs = cnx.cursor()
 
 ###// HARD CODED REFERENCE DICTIONARIES ###
 
+# Max weight in grams (13 kg as per data online)
+maxWeight = 13000;
+
 # Bictionary of categories and their totals
 categoryTotals = {
         "Lighting and Illumination" : 13,
@@ -88,7 +91,7 @@ def getData(condition,request, table):
         if fetched :
                 return fetched[0][0]
         else:
-                return
+                pass
 
 # Function to update data (NAZIA)
 
@@ -101,6 +104,9 @@ def extractKitUtil(fi):
 
                 # Note : Returns as nested tuples, hence we extract with [0][0]
                 for i in csvObject:
+                        #if none is returned, ignore
+                        if not getData(i[0], "Category", "utility") :
+                                continue
                         icat = getData(i[0], "Category", "utility")
                         iscore = getData(i[0], "SurvivalScore", "utility")
                         ireq =  getData(i[0], "Required", "utility")
@@ -164,22 +170,49 @@ def normalWeight():
                 amountInKit = int(extract[i]['Quantity'])
                 maxAmount = int(extract[i]['MaxPerPerson'])
                 itemCat = extract[i]['Category']
-                if amountInKit == maxAmount:
+                
+                # If there is exact amount or none at all, score stays the same
+                if amountInKit == 1 or amountInKit == 0:
                         pass
-
-                ### HIGHLY SUBJECT TO CHANGE!!!
+                # If the amount is less than the max, and they did not put in only 1, we will reward them
+                elif amountInKit <= maxAmount:
+                        # We account for any extra
+                        reward = amountInKit - 1
+                        categoryScores[itemCat] += reward
+                # IF they go over limit, we must punish them >:)
                 elif amountInKit > maxAmount:
                         # Lower score for however much excess they put in
                         punish = amountInKit - maxAmount
                         categoryScores[itemCat] -= punish
-                # If the amount is less than the max, and they did not put in exact amount, we will reward them
-                elif amountInKit < maxAmount:
-                        # We account for any extra
-                        reward = amountInKit - 1
-                        categoryScores[itemCat] += reward
                 
 # This function calculates the calories
-# This function calculate the amount of water
+def getTotCal(fi):
+         with open(fi, "r") as fileObject:
+                csvObject = csv.reader(fileObject)
+                totCal = 0
+                # Note : Returns as nested tuples, hence we extract with [0][0]
+                for i in csvObject:
+                        ical = getData(i[0], "Calorie", "food")
+                        if ical != None :
+                                #Multiply by quantitiy
+                                ical *= int(i[1])
+                                totCal += ical
+                return totCal
+
+
+# This function calculate the amount of water in ml
+def getTotWater(fi):
+         with open(fi, "r") as fileObject:
+                csvObject = csv.reader(fileObject)
+                totWater = 0
+                # Note : Returns as nested tuples, hence we extract with [0][0]
+                for i in csvObject:
+                        iWeight = getData(i[0], "WeightGram", "water")
+                        if iWeight != None :
+                                #Multiply by quantitiy
+                                iWeight *= int(i[1])
+                                totWater += iWeight
+                return totWater
 
 # This function find the amount needed for the family size and days
         # Daily water and calorie based
@@ -194,3 +227,5 @@ print()
 weightScore()
 print()
 normalWeight()
+print("Total calories in kit :" ,getTotCal("./sampleInput.csv"))
+print("You have this many ml of water :",getTotWater("./sampleInput.csv"))
