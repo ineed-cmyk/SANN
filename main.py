@@ -54,18 +54,20 @@ categoryTotals = {
 }
 
 # This function find the amount needed for the family size and days
-        # Daily water and calorie based
 def modifyDaily(fi):
         global dailyWater, dailyCal
+        print(f"OG REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
         with open(fi, "r") as fileObject:
                 csvObject = csv.reader(fileObject)
                 for i in csvObject:
                         familyMembers = i[0]
                         days = i[1]
-                totalReq = familyMembers * days
+                totalReq = int(familyMembers) * int(days)
                 
                 dailyWater *= totalReq
                 dailyCal *= totalReq
+
+                print(f"NEW REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
 
 modifyDaily("./sampleFamilyConfig.csv")
 
@@ -201,7 +203,7 @@ def weightScore():
 
 # This function normalizes for the quantity ie. Checks for too many items
 def normalWeight():
-        pp.pprint(extract)
+        #pp.pprint(extract)
         for i in extract :
                 amountInKit = int(extract[i]['Quantity'])
                 maxAmount = int(extract[i]['MaxPerPerson'])
@@ -283,7 +285,34 @@ def checkWeight(curWeight):
                 excess = math.abs(curWeight - maxWeight)
         return (weightPercent,overWeight, excess)
 
+# Function to check if enough calories and water are present, very similar to pervious function
+# Returns a nested tuple
+# First tuple is about calories -> Calorie Percent, Under prepared (T/F), lacking amount
+# Secpmd tuple is about water -> Water Percent, Under prepared (T/F), lacking amount
+# We do NOT punish the user for over preparing in this regard
+def checkConsumeables(curCal, curWater):
+        underCal = False
+        underWater = False
 
+        lackingCal = 0
+        lackingWater = 0
+
+        calPercent = curCal/dailyCal * 100
+        waterPercent = curWater/dailyWater * 100
+
+        if calPercent < 100:
+                underCal = True
+                lackingCal = dailyCal - curCal
+        
+        if waterPercent < 100:
+                underWater = True
+                lackingWater = dailyCal - curCal
+        
+        output = ((calPercent,underCal,lackingCal),(waterPercent,underWater,lackingWater))
+
+        return(output)
+
+### TRIAL CODE ###
 
 extractKitUtil("./sampleInput.csv")
 sumScore()
@@ -294,10 +323,16 @@ print()
 weightScore()
 print()
 normalWeight()
-print("Total calories in kit :" ,getTotCal("./sampleInput.csv"))
-print("You have this many ml of water :",getTotWater("./sampleInput.csv"))
 
-TotalWeight = getTotWeight("./sampleInput.csv")
-print("The total weight of your kit is:", TotalWeight, "grams")
+totalFood = getTotCal("./sampleInput.csv")
+print("Total calories in kit :" ,totalFood)
 
-print(checkWeight(TotalWeight))
+totalWater = getTotWater("./sampleInput.csv")
+print("You have this many ml of water :",totalWater)
+
+totalWeight = getTotWeight("./sampleInput.csv")
+print("The total weight of your kit is:", totalWeight, "grams")
+
+print(checkWeight(totalWeight))
+
+print(checkConsumeables(totalFood,totalWater))
