@@ -14,7 +14,7 @@ cnx = mysql.connector.connect(
     )
 curs = cnx.cursor()
 
-# Building a dictionary of types
+# Bictionary of types
 categoryTotals = {
         "Lighting and Illumination" : 13,
         "Power and Batteries" : 15,
@@ -140,9 +140,21 @@ def weightScore():
                 weightedRound = round(weighted,2)
                 # Add it to final score
                 finalScore += weightedRound
-        print(f"Your final score is {finalScore}%")
-                
 
+                # Account for overpercentage 
+
+        print(f"Your final score is {finalScore}%")
+
+# This function normalizes for the quantity
+
+# This function calculates the calories
+
+# This function calculate the amount of water
+
+# This function find the amount needed for the family size and days
+        # Daily water and calorie based
+
+# Function to determine the weight
 
 extractKitUtil("./sampleInput.csv")
 sumScore()
