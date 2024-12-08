@@ -126,6 +126,11 @@ def percentagePerCategory():
         for i in categoryPercentage:
                 # Percentage = x / total * 100, rounded to 2 decimal places
                 unWeight = round(categoryScores[i] / categoryTotals[i] * 100,2)
+
+                # If percentage is over 100, then just set it to 100
+                if unWeight > 100 :
+                        unWeight = 100
+
                 categoryPercentage[i] = str(unWeight)+"%"
 
 
@@ -140,8 +145,6 @@ def weightScore():
                 weightedRound = round(weighted,2)
                 # Add it to final score
                 finalScore += weightedRound
-
-                # Account for overpercentage 
 
         print(f"Your final score is {finalScore}%")
 
