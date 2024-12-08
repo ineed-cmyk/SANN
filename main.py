@@ -14,10 +14,30 @@ cnx = mysql.connector.connect(
     )
 curs = cnx.cursor()
 
-###// HARD CODED REFERENCE DICTIONARIES ###
+###// HARD CODED REFERENCE VALUES ###
 
 # Max weight in grams (13 kg as per data online)
 maxWeight = 13000;
+
+# Required amount of calories per day
+"""
+In implementing the revised MOU (March 1997), WFP and UNHCR will follow the WHO
+Guidelines and use 2,100 kilocalories as the initial reference value for calculating energy
+requirements and designing food aid rations for the affected populations in emergency
+situations.
+
+- WHO
+"""
+dailyCal = 2100;
+# Required amount of water per day
+"""
+Store at least 1 gallon of water per person, per day for 3 days (Approx 3700 ml). 
+You can use this water during an emergency for drinking, cooking, brushing teeth, and other uses. 
+Try to store a 2-week supply if possible.
+
+- CDC
+"""
+dailyWater = 3700
 
 # Bictionary of categories and their totals
 categoryTotals = {
@@ -32,6 +52,9 @@ categoryTotals = {
         "Documentation and Emergency Funds" : 9,
         "Shelter and Clothing" : 9
 }
+
+# This function find the amount needed for the family size and days
+        # Daily water and calorie based
 
 # To calculate the weighted average
 weightage = {
@@ -51,7 +74,7 @@ weightage = {
         "Water" : 30
 }
 
-### HARD CODED REFERENCE DICTIONARIES //###
+### HARD CODED REFERENCE VALUES //###
 
 # Dictionary to hold how much the user earnt
 categoryScores = {
@@ -246,8 +269,9 @@ def checkWeight(curWeight):
                 overWeight = True
                 excess = math.abs(curWeight - maxWeight)
         return (weightPercent,overWeight, excess)
-# This function find the amount needed for the family size and days
-        # Daily water and calorie based
+
+
+
 extractKitUtil("./sampleInput.csv")
 sumScore()
 percentagePerCategory()
