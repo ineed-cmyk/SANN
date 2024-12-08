@@ -6,9 +6,35 @@ from kivymd.app import MDApp
 from kivymd.uix.list import (
     MDListItem,
     MDListItemHeadlineText,
+    MDListItemTrailingIcon,
 )
+from kivymd.uix.card import MDCardSwipe
+from kivy.properties import StringProperty
+
 
 MAIN_KV = '''
+<SwipeToDeleteItem>:
+    size_hint_y: None
+    height: content.height
+
+    MDCardSwipeLayerBox:
+        padding: "8dp"
+
+        MDIconButton:
+            icon: "trash-can"
+            pos_hint: {"center_y": .5}
+            on_release: app.delete_item(root)
+
+    MDCardSwipeFrontBox:
+
+        MDListItem:
+            id: content
+            _no_ripple_effect: True
+            MDListItemHeadlineText:
+                text:root.text
+                
+
+    
 MDScreen:
     md_bg_color: self.theme_cls.backgroundColor
     
@@ -35,12 +61,16 @@ MDScreen:
                     width: dp(300)
 
                 MDButton:
+                    size_hint_x: None
                     width: dp(200)
                     on_release: app.on_start()
                     MDButtonText:
                         text: "Start"
 '''
+class SwipeToDeleteItem(MDCardSwipe):
+    text = StringProperty()
 
+user_input_list = []
 class Example(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Light"
@@ -48,21 +78,18 @@ class Example(MDApp):
         return Builder.load_string(MAIN_KV)
 
     def on_start(self):
-        # Retrieve user input
+
         user_input = self.root.ids.inputfield.text.strip()
-        user_input_list = []
         user_input_list.append(user_input)
-        # Add the input to the list if it's not empty
         for uservalues in user_input_list:
 
-            self.root.ids.main_scroll.add_widget(
-                MDListItem(
-                    MDListItemHeadlineText(
-                        text=uservalues,
-                    ),
-                )
-            )
-            # Clear the input field after adding the item
-            self.root.ids.inputfield.text = ""
+            self.root.ids.main_scroll.add_widget(SwipeToDeleteItem(text=f"{uservalues}"))
+
+
+
+    def delete_item(self, list_item):
+        """Remove the specified list item."""
+        self.root.ids.main_scroll.remove_widget(list_item)
 
 Example().run()
+
