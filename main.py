@@ -55,6 +55,19 @@ categoryTotals = {
 
 # This function find the amount needed for the family size and days
         # Daily water and calorie based
+def modifyDaily(fi):
+        global dailyWater, dailyCal
+        with open(fi, "r") as fileObject:
+                csvObject = csv.reader(fileObject)
+                for i in csvObject:
+                        familyMembers = i[0]
+                        days = i[1]
+                totalReq = familyMembers * days
+                
+                dailyWater *= totalReq
+                dailyCal *= totalReq
+
+modifyDaily("./sampleFamilyConfig.csv")
 
 # To calculate the weighted average
 weightage = {
