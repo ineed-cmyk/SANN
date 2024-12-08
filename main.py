@@ -1,6 +1,6 @@
 import mysql.connector
 import csv
-
+import math
 # Functionality to pretty print dictionaries
 import pprint 
 pp = pprint.PrettyPrinter(indent=4)
@@ -233,6 +233,19 @@ def getTotWeight(fi):
                                 iWeight *= int(i[1])
                                 totWeight += iWeight
                 return totWeight
+
+# Function to check over weight
+# Returns a tuple, first value is weight percentage, second value is overweight boolean, third value is how much more
+# ie . (Weight Percent, Overweight (T/F), Excess amount)
+def checkWeight(curWeight):
+        overWeight = False
+        excess = 0
+        weightPercent =  int(round(curWeight/maxWeight*100,0))
+        
+        if weightPercent > 100 :
+                overWeight = True
+                excess = math.abs(curWeight - maxWeight)
+        return (weightPercent,overWeight, excess)
 # This function find the amount needed for the family size and days
         # Daily water and calorie based
 extractKitUtil("./sampleInput.csv")
@@ -246,4 +259,8 @@ print()
 normalWeight()
 print("Total calories in kit :" ,getTotCal("./sampleInput.csv"))
 print("You have this many ml of water :",getTotWater("./sampleInput.csv"))
-print("The total weight of your kit is:", getTotWeight("./sampleInput.csv"))
+
+TotalWeight = getTotWeight("./sampleInput.csv")
+print("The total weight of your kit is:", TotalWeight, "grams")
+
+print(checkWeight(TotalWeight))
