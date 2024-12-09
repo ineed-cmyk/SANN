@@ -297,7 +297,7 @@ def checkWeight(curWeight):
 
     if weightPercent > 100:
         overWeight = True
-        excess = math.abs(curWeight - maxWeight)
+        excess = math.fabs(curWeight - maxWeight)
     return (weightPercent, overWeight, excess)
 
 
@@ -315,6 +315,12 @@ def checkConsumeables(curCal, curWater):
 
     calPercent = int(round(curCal / dailyCal * 100,0))
     waterPercent = int(round(curWater / dailyWater * 100,0))
+
+    if calPercent > 100:
+        calPercent = 100
+
+    if waterPercent > 100:
+        waterPercent = 100 
 
     if calPercent < 100:
         underCal = True
