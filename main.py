@@ -1,12 +1,13 @@
 import mysql.connector
 import csv
 import math
-
 # Functionality to pretty print dictionaries
 import pprint
+from colorama import Fore, init
 
+# Coloured text and pretty print for debug
+init(convert=True, autoreset=True)
 pp = pprint.PrettyPrinter(indent=4)
-
 
 cnx = mysql.connector.connect(
     username="root", password="root", host="localhost", database="kitcritic"
@@ -66,15 +67,12 @@ def modifyDaily(fi):
             familyMembers = i[0]
             days = i[1]
         
-        # Debug code
-        print(f"There are {familyMembers} people in your party, and you will be surving {days} days")
-
         totalReq = int(familyMembers) * int(days)
 
         dailyWater *= totalReq
         dailyCal *= totalReq
 
-modifyDaily("./sampleFamilyConfig.csv")
+        return(f"There are {familyMembers} people in your party, and you will be surving {days} days")
 
 # To calculate the weighted average
 weightage = {
@@ -210,11 +208,11 @@ def weightScore():
         # Add it to final score
         finalScore += weightedRound
 
-    print(f"Your final score is {finalScore}%")
+    return(f"Your final score is {finalScore}%")
 
 
 # This function normalizes for the quantity ie. Checks for too many items
-def normalWeight():
+def weightMaxCheck():
     # pp.pprint(extract)
     for i in extract:
         amountInKit = int(extract[i]["Quantity"])
@@ -373,36 +371,89 @@ def require(kit):
             continue
     return req_it
 
-
 ### TRIAL CODE ###
 
-print(f"NEW REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
+def help():
+    print(Fore.GREEN + "Following are all the functions in the code")
+    print()
 
-totalWater = getTotWater("./sampleInput.csv")
-totalFood = getTotCal("./sampleInput.csv")
+    print(Fore.BLUE + "modifyDaily()")
+    print("This function is run at the beginning. It checks family size and days to go, and modifies food and water accordingly")
+    debugText = modifyDaily("./sampleFamilyConfig.csv")
+    print(Fore.GREEN + debugText)
+    print(Fore.GREEN + "Evaluated amount for party and days -> Water : ",Fore.GREEN + str(dailyWater),Fore.GREEN + "Calories : ", Fore.GREEN + str(dailyCal))
+    print()
 
-extractKitUtil("./sampleInput.csv")
-sumScore()
-percentagePerCategory()
-consumInfo = checkConsumeables(totalFood, totalWater)
-calWaterAdd(consumInfo[0][0],consumInfo[1][0])
-print("Here is the scores per category : ")
-pp.pprint(categoryPercentage)
-print()
-weightScore()
-print()
-normalWeight()
+    print(Fore.BLUE + "getTotWater()")
+    print("This function gets the total amount of water in the kit")
+    totalWater = getTotWater("./sampleInput.csv")
+    print(Fore.GREEN + "You have this many ml of water :", Fore.GREEN + str(totalWater))
+    print()
 
-print("Total calories in kit :", totalFood)
+    print(Fore.BLUE + "getTotCal()")
+    print("This function gets the total amount of calories in the kit")
+    totalFood = getTotCal("./sampleInput.csv")
+    print(Fore.GREEN + "Total calories in kit :", Fore.GREEN + str(totalFood))
+    print()
 
-print("You have this many ml of water :", totalWater)
+    print(Fore.BLUE + "extractKitUtil()")
+    print("This function extracts the given kit from CSV to a python dictionary")
+    extractKitUtil("./sampleInput.csv")
+    print()
 
-totalWeight = getTotWeight("./sampleInput.csv")
-print("The total weight of your kit is:", totalWeight, "grams")
+    print(Fore.BLUE + "checkConsumeables()")
+    print("This function returns information on food and water, such as percentages, True and False satisfactory, and required amount to add. Check code")
+    consumInfo = checkConsumeables(totalFood, totalWater)
+    print(Fore.GREEN + str(consumInfo))
+    print()
 
-print(checkWeight(totalWeight))
+    print(Fore.BLUE + "sumScore()")
+    print("This function adds up the total scores for each utility category")
+    sumScore()
+    print()
 
-print(checkConsumeables(totalFood, totalWater))
-weightScore()
+    print(Fore.BLUE + "percentagePerCategory()")
+    print("This function takes the scores per category and makes them into a percentage. This is our reference values")
+    percentagePerCategory()
+    print()
 
-print("Following are required items you should add : \n", require(extract))
+    print(Fore.GREEN + "Here is the scores per category : ")
+    pp.pprint(categoryPercentage)
+    print()
+
+    
+    print(Fore.BLUE + "calWaterAdd()")
+    print("This function adds the water and calorie scores to the overall score dictionary")
+    calWaterAdd(consumInfo[0][0],consumInfo[1][0])
+    print()
+
+    print(Fore.BLUE + "weightScore()")
+    print("This function takes percentages and multiplies them by the weightage values. Should be run after getting water and calories")
+    debugText = weightScore()
+    print(Fore.GREEN + debugText)
+    print()
+
+    print(Fore.BLUE + "weightMaxCheck()")
+    print("This function punishes or rewards the user based on if they have too few or too many items")
+    weightMaxCheck()
+    print()
+
+    print(Fore.BLUE + "getTotWeight()")
+    print("This function gets the total weight of the kit")
+    totalWeight = getTotWeight("./sampleInput.csv")
+    print()
+
+    print(Fore.GREEN + "The total weight of your kit is:", totalWeight, "grams")
+    print()
+
+    print(Fore.BLUE + "checkWeight()")
+    print("This function checks the total weight and lets user know of overweightage")
+    print(Fore.GREEN + str(checkWeight(totalWeight)))
+    print()
+
+    print(Fore.BLUE + "getTotWater(fi)")
+    print("This function returns required utility items that need to be added to the kit")
+    print(Fore.GREEN + "Following are required items you should add : \n" + str(require(extract)))
+    print()
+
+help()
