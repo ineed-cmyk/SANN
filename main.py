@@ -51,9 +51,10 @@ categoryTotals = {
     "Navigation and Signaling": 18,
     "Medical Supplies": 36,
     "Hygiene and Sanitation": 31,
-    # "Food and Water" : 14,
     "Documentation and Emergency Funds": 9,
     "Shelter and Clothing": 9,
+    "Water" : 100,
+    "Food" : 100
 }
 
 
@@ -117,7 +118,8 @@ categoryPercentage = {
     "Navigation and Signaling": 0,
     "Medical Supplies": 0,
     "Hygiene and Sanitation": 0,
-    # "Food and Water" : 0,
+    "Food" : 0,
+    "Water" : 0,
     "Documentation and Emergency Funds": 0,
     "Shelter and Clothing": 0,
 }
@@ -185,6 +187,7 @@ def sumScore():
 
 # This function gives percentage for each category
 def percentagePerCategory():
+    global categoryPercentage
     for i in categoryPercentage:
         # Percentage = x / total * 100, rounded to 2 decimal places
         unWeight = round(categoryScores[i] / categoryTotals[i] * 100, 2)
@@ -426,6 +429,14 @@ def help():
     sumScore()
     print()
 
+    print(Fore.BLUE + "calWaterAdd()")
+    print(
+        "This function adds the water and calorie scores to the overall score dictionary"
+    )
+    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
+    print()
+
+    
     print(Fore.BLUE + "percentagePerCategory()")
     print(
         "This function takes the scores per category and makes them into a percentage. This is our reference values"
@@ -437,11 +448,6 @@ def help():
     pp.pprint(categoryPercentage)
     print()
 
-    print(Fore.BLUE + "calWaterAdd()")
-    print(
-        "This function adds the water and calorie scores to the overall score dictionary"
-    )
-    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
     print()
 
     print(Fore.BLUE + "weightScore()")
