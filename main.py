@@ -358,16 +358,20 @@ def calWaterAdd(calPercent,waterPercent):
 
 # Function to get required items
 def require(kit):
-    l1 = kit
-    cur.execute(f"SELECT item FROM kitcritic WHERE required = 'True'")
-    f2 = cur.fetchall()
-    req_it = list(f2)
-    for i in l1:
-        if i in req_it:
-            RemainREQ = req_it.remove(i)
+    kitList = list(kit) # True Copy
+    curs.execute("SELECT item FROM utility WHERE required = 'True'")
+    f2 = curs.fetchall()
+    req_it = [] # List of required stuffs
+    for i in f2 :
+        req_it.append(i[0])
+
+    # Subtraction
+    for j in req_it:
+        if j in kitList:
+            req_it.remove(j)
         else:
             continue
-    print RemainREQ
+    return req_it
 
 
 ### TRIAL CODE ###
@@ -400,3 +404,5 @@ print(checkWeight(totalWeight))
 
 print(checkConsumeables(totalFood, totalWater))
 weightScore()
+
+print("Following are required items you should add : \n", require(extract))
