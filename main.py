@@ -356,6 +356,20 @@ def calWaterAdd(calPercent,waterPercent):
 
         #categoryPercentage[i] = str(unWeight) + "%"
 
+# Function to get required items
+def require(kit):
+    l1 = kit
+    cur.execute(f"SELECT item FROM kitcritic WHERE required = 'True'")
+    f2 = cur.fetchall()
+    req_it = list(f2)
+    for i in l1:
+        if i in req_it:
+            RemainREQ = req_it.remove(i)
+        else:
+            continue
+    print RemainREQ
+
+
 ### TRIAL CODE ###
 
 print(f"NEW REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
