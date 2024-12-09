@@ -1,0 +1,4 @@
+colorama==0.4.6
+Kivy==2.3.0
+kivymd==1.2.0
+mysql_connector_repackaged==0.3.1
