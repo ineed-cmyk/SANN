@@ -489,5 +489,5 @@ def help():
     )
     print()
 
-
+# Running the help statement automatically
 help()
