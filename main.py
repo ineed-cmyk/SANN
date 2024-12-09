@@ -1,6 +1,7 @@
 import mysql.connector
 import csv
 import math
+
 # Functionality to pretty print dictionaries
 import pprint
 from colorama import Fore, init
@@ -59,20 +60,21 @@ categoryTotals = {
 # This function find the amount needed for the family size and days
 def modifyDaily(fi):
     global dailyWater, dailyCal
-    #print(f"OG REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
+    # print(f"OG REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
     with open(fi, "r") as fileObject:
         csvObject = csv.reader(fileObject)
         next(csvObject, None)  # skip the headers
         for i in csvObject:
             familyMembers = i[0]
             days = i[1]
-        
+
         totalReq = int(familyMembers) * int(days)
 
         dailyWater *= totalReq
         dailyCal *= totalReq
 
-        return(f"There are {familyMembers} people in your party, and you will be surving {days} days")
+        return f"There are {familyMembers} people in your party, and you will be surving {days} days"
+
 
 # To calculate the weighted average
 weightage = {
@@ -208,7 +210,7 @@ def weightScore():
         # Add it to final score
         finalScore += weightedRound
 
-    return(f"Your final score is {finalScore}%")
+    return f"Your final score is {finalScore}%"
 
 
 # This function normalizes for the quantity ie. Checks for too many items
@@ -311,14 +313,14 @@ def checkConsumeables(curCal, curWater):
     lackingCal = 0
     lackingWater = 0
 
-    calPercent = int(round(curCal / dailyCal * 100,0))
-    waterPercent = int(round(curWater / dailyWater * 100,0))
+    calPercent = int(round(curCal / dailyCal * 100, 0))
+    waterPercent = int(round(curWater / dailyWater * 100, 0))
 
     if calPercent > 100:
         calPercent = 100
 
     if waterPercent > 100:
-        waterPercent = 100 
+        waterPercent = 100
 
     if calPercent < 100:
         underCal = True
@@ -337,30 +339,31 @@ def checkConsumeables(curCal, curWater):
 
 
 # Function to add water and calories into score system
-def calWaterAdd(calPercent,waterPercent):
-        global categoryPercentage, categoryScores
+def calWaterAdd(calPercent, waterPercent):
+    global categoryPercentage, categoryScores
 
-        categoryScores["Water"] = waterPercent
-        categoryScores["Food"] = calPercent      
+    categoryScores["Water"] = waterPercent
+    categoryScores["Food"] = calPercent
 
-        categoryPercentage["Water"] = str(waterPercent) + "%"
-        categoryPercentage["Food"] = str(calPercent) + "%"
+    categoryPercentage["Water"] = str(waterPercent) + "%"
+    categoryPercentage["Food"] = str(calPercent) + "%"
 
-        # # If percentage is over 100, then just set it to 100. Same with negative scores
-        # if unWeight > 100:
-        #     unWeight = 100
-        # elif unWeight <= 0:
-        #     unWeight = 0
+    # # If percentage is over 100, then just set it to 100. Same with negative scores
+    # if unWeight > 100:
+    #     unWeight = 100
+    # elif unWeight <= 0:
+    #     unWeight = 0
 
-        #categoryPercentage[i] = str(unWeight) + "%"
+    # categoryPercentage[i] = str(unWeight) + "%"
+
 
 # Function to get required items
 def require(kit):
-    kitList = list(kit) # True Copy
+    kitList = list(kit)  # True Copy
     curs.execute("SELECT item FROM utility WHERE required = 'True'")
     f2 = curs.fetchall()
-    req_it = [] # List of required stuffs
-    for i in f2 :
+    req_it = []  # List of required stuffs
+    for i in f2:
         req_it.append(i[0])
 
     # Subtraction
@@ -371,17 +374,26 @@ def require(kit):
             continue
     return req_it
 
+
 ### TRIAL CODE ###
+
 
 def help():
     print(Fore.GREEN + "Following are all the functions in the code")
     print()
 
     print(Fore.BLUE + "modifyDaily()")
-    print("This function is run at the beginning. It checks family size and days to go, and modifies food and water accordingly")
+    print(
+        "This function is run at the beginning. It checks family size and days to go, and modifies food and water accordingly"
+    )
     debugText = modifyDaily("./sampleFamilyConfig.csv")
     print(Fore.GREEN + debugText)
-    print(Fore.GREEN + "Evaluated amount for party and days -> Water : ",Fore.GREEN + str(dailyWater),Fore.GREEN + "Calories : ", Fore.GREEN + str(dailyCal))
+    print(
+        Fore.GREEN + "Evaluated amount for party and days -> Water : ",
+        Fore.GREEN + str(dailyWater),
+        Fore.GREEN + "Calories : ",
+        Fore.GREEN + str(dailyCal),
+    )
     print()
 
     print(Fore.BLUE + "getTotWater()")
@@ -402,7 +414,9 @@ def help():
     print()
 
     print(Fore.BLUE + "checkConsumeables()")
-    print("This function returns information on food and water, such as percentages, True and False satisfactory, and required amount to add. Check code")
+    print(
+        "This function returns information on food and water, such as percentages, True and False satisfactory, and required amount to add. Check code"
+    )
     consumInfo = checkConsumeables(totalFood, totalWater)
     print(Fore.GREEN + str(consumInfo))
     print()
@@ -413,7 +427,9 @@ def help():
     print()
 
     print(Fore.BLUE + "percentagePerCategory()")
-    print("This function takes the scores per category and makes them into a percentage. This is our reference values")
+    print(
+        "This function takes the scores per category and makes them into a percentage. This is our reference values"
+    )
     percentagePerCategory()
     print()
 
@@ -421,20 +437,25 @@ def help():
     pp.pprint(categoryPercentage)
     print()
 
-    
     print(Fore.BLUE + "calWaterAdd()")
-    print("This function adds the water and calorie scores to the overall score dictionary")
-    calWaterAdd(consumInfo[0][0],consumInfo[1][0])
+    print(
+        "This function adds the water and calorie scores to the overall score dictionary"
+    )
+    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
     print()
 
     print(Fore.BLUE + "weightScore()")
-    print("This function takes percentages and multiplies them by the weightage values. Should be run after getting water and calories")
+    print(
+        "This function takes percentages and multiplies them by the weightage values. Should be run after getting water and calories"
+    )
     debugText = weightScore()
     print(Fore.GREEN + debugText)
     print()
 
     print(Fore.BLUE + "weightMaxCheck()")
-    print("This function punishes or rewards the user based on if they have too few or too many items")
+    print(
+        "This function punishes or rewards the user based on if they have too few or too many items"
+    )
     weightMaxCheck()
     print()
 
@@ -452,8 +473,15 @@ def help():
     print()
 
     print(Fore.BLUE + "getTotWater(fi)")
-    print("This function returns required utility items that need to be added to the kit")
-    print(Fore.GREEN + "Following are required items you should add : \n" + str(require(extract)))
+    print(
+        "This function returns required utility items that need to be added to the kit"
+    )
+    print(
+        Fore.GREEN
+        + "Following are required items you should add : \n"
+        + str(require(extract))
+    )
     print()
+
 
 help()
