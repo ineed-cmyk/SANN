@@ -104,7 +104,6 @@ categoryScores = {
     "Navigation and Signaling": 0,
     "Medical Supplies": 0,
     "Hygiene and Sanitation": 0,
-    # "Food and Water" : 0,
     "Documentation and Emergency Funds": 0,
     "Shelter and Clothing": 0,
 }
@@ -137,7 +136,7 @@ def getData(condition, request, table):
         pass
 
 
-# Function to update data (NAZIA)
+# Function to get required (NAZIA)
 
 # This function reads the CSV containing what Utilities are in the kit, and builds a dictionary to use in code.
 extract = {}
@@ -333,13 +332,36 @@ def checkConsumeables(curCal, curWater):
     return output
 
 
+# Function to add water and calories into score system
+def calWaterAdd(calPercent,waterPercent):
+        global categoryPercentage, categoryScores
+
+        categoryScores["Water"] = waterPercent
+        categoryScores["Food"] = calPercent      
+
+        categoryPercentage["Water"] = str(waterPercent) + "%"
+        categoryPercentage["Food"] = str(calPercent) + "%"
+
+        # # If percentage is over 100, then just set it to 100. Same with negative scores
+        # if unWeight > 100:
+        #     unWeight = 100
+        # elif unWeight <= 0:
+        #     unWeight = 0
+
+        #categoryPercentage[i] = str(unWeight) + "%"
+
 ### TRIAL CODE ###
 
 print(f"NEW REQ AMOUNT : water {dailyWater}, calories {dailyCal}")
 
+totalWater = getTotWater("./sampleInput.csv")
+totalFood = getTotCal("./sampleInput.csv")
+
 extractKitUtil("./sampleInput.csv")
 sumScore()
 percentagePerCategory()
+consumInfo = checkConsumeables(totalFood, totalWater)
+calWaterAdd(consumInfo[0][0],consumInfo[1][0])
 print("Here is the scores per category : ")
 pp.pprint(categoryPercentage)
 print()
@@ -347,10 +369,8 @@ weightScore()
 print()
 normalWeight()
 
-totalFood = getTotCal("./sampleInput.csv")
 print("Total calories in kit :", totalFood)
 
-totalWater = getTotWater("./sampleInput.csv")
 print("You have this many ml of water :", totalWater)
 
 totalWeight = getTotWeight("./sampleInput.csv")
@@ -359,3 +379,4 @@ print("The total weight of your kit is:", totalWeight, "grams")
 print(checkWeight(totalWeight))
 
 print(checkConsumeables(totalFood, totalWater))
+weightScore()
