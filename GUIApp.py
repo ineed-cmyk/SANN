@@ -32,18 +32,38 @@ KV = '''
 
 MDScreenManager:
 
+
     MDScreen:
         name: "front_page"
-        md_bg_color: "cadetblue"
+        md_bg_color: self.theme_cls.backgroundColor
+        MDIcon:
+            icon: "exit-run"
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+            theme_text_color: "Secondary"
 
+        #Text
+        MDLabel:
+            text: "CritKit"
+            halign: "center"
+            pos_hint: {"center_y": 0.6}
+            theme_text_color: "Secondary"
+        #Tagline
+        MDLabel:
+            text: "Assesses how prepared your kit is for any disaster!"
+            halign: "center"
+            pos_hint: {"center_y": 0.53}
+            theme_text_color: "Primary"
+        #Start button
         MDButton:
-            pos_hint: {"center_x": .5,"center_y": .5}
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            size_hint: (0.5, 0.08)
+            md_bg_color: 1, 0.5, 0, 1 
             on_release:
-                root.current = "first_input_page"
-
+                app.root.transition.direction = "left"
+                app.root.current = "first_input_page"
             MDButtonText:
-                text: "Start"
-
+                text: "Get Started" 
+    
 
     MDScreen:
         name: "first_input_page"
@@ -179,14 +199,13 @@ class SwipeToDeleteItem(MDCardSwipe):
 class Example(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user_input_list = []
         self.user_input_list2 = []
 
     def build(self):
         self.theme_cls.primary_palette = "Antiquewhite"
         return Builder.load_string(KV)
 
-    def save_values(self):
+    def save_values(self,filename="sampleFamilyConfig.csv"):
         duration = self.root.ids.duration_slider.value
         max_people = self.root.ids.people_slider.value
 
@@ -195,6 +214,16 @@ class Example(MDApp):
 
         self.duration = duration
         self.max_people = max_people
+        try:
+            with open(filename, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                # Add a header row
+                writer.writerow(["Family Size", "Days to Survive"])
+                # Write each item and quantity to the file
+                writer.writerows([f"{self.max_people}",f"{self.duration}"])
+            print(f"Data saved successfully to {filename}")
+        except Exception as e:
+            print(f"Error saving to CSV: {e}")
 
     def add_item_widget(self):
 
@@ -202,8 +231,6 @@ class Example(MDApp):
         user_input_No = self.root.ids.secondinputfield.text.strip()
         if user_input and user_input_No:
             self.user_input_list2.append([user_input, user_input_No])
-            self.user_input_list.append(user_input)
-
             self.root.ids.main_scroll.add_widget(SwipeToDeleteItem(text=f"{user_input} X {user_input_No}"))
 
             self.root.ids.inputfield.text = ""
