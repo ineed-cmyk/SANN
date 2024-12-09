@@ -1,12 +1,9 @@
-from kivy.lang import Builder
-
-from kivymd.app import MDApp
-from kivy.metrics import dp
-from kivy.core.window import Window
-
-from kivymd.uix.card import MDCardSwipe
-from kivy.properties import StringProperty
 import csv
+
+from kivy.lang import Builder
+from kivy.properties import StringProperty
+from kivymd.app import MDApp
+from kivymd.uix.card import MDCardSwipe
 
 KV = '''
 
