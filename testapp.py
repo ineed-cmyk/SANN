@@ -387,6 +387,9 @@ def require(kit):
 ### TRIAL CODE ###
 
 
+
+
+# Running the help statement automatically
 def help():
     print(Fore.GREEN + "Following are all the functions in the code")
     print()
@@ -494,9 +497,6 @@ def help():
     )
     print()
 
-
-# Running the help statement automatically
-help()
 
 
 
@@ -756,6 +756,8 @@ class Example(MDApp):
             print(f"Data saved successfully to {filename}")
         except Exception as e:
             print(f"Error saving to CSV: {e}")
+
+        help()
 
 
 Example().run()
