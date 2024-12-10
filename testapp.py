@@ -5,7 +5,10 @@ from kivymd.app import MDApp
 from kivymd.uix.card import MDCardSwipe
 import mysql.connector
 import math
-
+import io
+import plotly.graph_objects as go
+from kivy.uix.image import Image
+from kivy.core.image import Image as CoreImage
 # Functionality to pretty print dictionaries
 import pprint
 from colorama import Fore, init
@@ -725,7 +728,6 @@ MDScreenManager:
         name: "second_input_page"
         md_bg_color: self.theme_cls.backgroundColor
 
-
         MDScrollView:
             do_scroll_x: False
 
@@ -788,7 +790,6 @@ MDScreenManager:
             orientation: "vertical"
             size_hint: (1, 1)
             padding: "10dp"
-
         ScrollView:
                     MDBoxLayout:
                         id: output_container
@@ -805,7 +806,31 @@ MDScreenManager:
                             size_hint_y: None
                             height: self.texture_size[1]  # Dynamically adjust height to fit the text
                             theme_text_color: "Primary"
+        MDBoxLayout:
+        orientation: "horizontal"
+        spacing: "10dp"
+        padding: "10dp"
+        
+        # Plotly Graph Section
+        Image:
+            id: radar_image
+            size_hint: 0.5, 1
 
+        # Text Section
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint: 0.5, 1
+
+            MDLabel:
+                text: "Radar Graph Example"
+                theme_text_color: "Secondary"
+                halign: "center"
+
+            MDLabel:
+                text: "This radar graph shows an example of data visualization side by side with text using Plotly and KivyMD."
+                theme_text_color: "Secondary"
+                halign: "center"
+                padding: "10dp"                      
 """
 
 
@@ -888,6 +913,31 @@ class Example(MDApp):
         )  # This calls the previously defined outputPrint() function
         # Update the text of the label on the output page
         self.root.ids.output_label.text = output_text
+    def create_radar_graph(self):
+        # Define the radar graph data
+        categories = ["Lighting and Illumination", "Power and Batteries", "Tools and Equipment", "Fire and Warmth", "Navigation and Signaling", "Medical Supplies", "Hygiene and Sanitation","Food","Water","Documentation and Emergency Funds","Shelter and Clothing"]
+        print(len(categories))
+        values = [int(value.strip('%')) for value in categoryPercentage.values()]
+        print(len(values))
+        # Create radar graph with Plotly
+        fig = go.Figure(data=go.Scatterpolar(
+            r=values + [values[0]],  # Close the loop
+            theta=categories + [categories[0]],
+            fill='toself',
+            name='KritikitGraph'
+        ))
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=True)
+            ),
+            showlegend=False
+        )
 
+        # Convert the figure to an image
+        image_bytes = io.BytesIO(fig.to_image(format="png", engine="kaleido"))
+        image_bytes.seek(0)
 
+        # Load image into Kivy
+        core_image = CoreImage(image_bytes, ext="png")
+        self.screen.ids.radar_image.texture = core_image.texture
 Example().run()
