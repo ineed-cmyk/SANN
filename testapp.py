@@ -383,12 +383,6 @@ def require(kit):
             continue
     return req_it
 
-
-### TRIAL CODE ###
-
-
-
-
 # Running the help statement automatically
 def help():
     print(Fore.GREEN + "Following are all the functions in the code")
@@ -497,6 +491,78 @@ def help():
     )
     print()
 
+from colorama import Fore
+import pprint as pp
+
+def outputPrint():
+    output = []
+    output.append(Fore.GREEN + "Welcome! Here’s a summary of your emergency kit evaluation:")
+    output.append("\n")
+    
+    # Daily water and calorie calculation
+    debugText = modifyDaily("./sampleFamilyConfig.csv")
+    output.append(Fore.GREEN + "We’ve adjusted your kit for the size of your group and the number of survival days.")
+    output.append(
+        "Based on our calculations, each person will need " + 
+        str(dailyWater) + " ml of water and " + 
+        str(dailyCal) + " calories daily."
+    )
+    output.append("\n")
+    
+    # Total water in the kit
+    totalWater = getTotWater("./sampleInput.csv")
+    output.append(Fore.GREEN + "Your kit currently contains " + str(totalWater) + " ml of water.")
+    output.append("\n")
+    
+    # Total calories in the kit
+    totalFood = getTotCal("./sampleInput.csv")
+    output.append(Fore.GREEN + "Your kit contains " + str(totalFood) + " total calories of food.")
+    output.append("\n")
+    
+    # Consumables check
+    consumInfo = checkConsumeables(totalFood, totalWater)
+    output.append("We’ve checked your food and water supplies.")
+    output.append("Here’s a breakdown of what you need to know: " + str(consumInfo))
+    output.append("\n")
+    
+    # Water and calorie contribution to overall score
+    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
+    output.append("Water and food contributions have been factored into your overall preparedness score.")
+    output.append("\n")
+
+    # Percentage of scores by category
+    percentagePerCategory()
+    output.append(Fore.GREEN + "Your survival kit's preparedness by category is as follows:")
+    output.append(pp.pformat(categoryPercentage))  # Pretty print dictionary as a formatted string
+    output.append("\n")
+    
+    # Weight check
+    totalWeight = getTotWeight("./sampleInput.csv")
+    output.append(Fore.GREEN + "The total weight of your kit is " + str(totalWeight) + " grams.")
+    output.append("\n")
+    
+    # Check for weight compliance
+    weight_status = checkWeight(totalWeight)
+    if weight_status:
+        output.append(Fore.GREEN + "Your kit's weight is within acceptable limits.")
+    else:
+        output.append(Fore.RED + "Warning: Your kit may be too heavy or too light. Please review the items inside.")
+    output.append("\n")
+    
+    # Recommended items to add
+    required_items = require(extract)
+    if required_items:
+        output.append(Fore.YELLOW + "Based on our review, you should consider adding the following essential items:")
+        output.append("\n" + str(required_items))
+    else:
+        output.append(Fore.GREEN + "Great news! Your kit is fully stocked with all essential items.")
+    output.append("\n")
+    
+    # Final summary message
+    output.append(Fore.GREEN + "Your survival kit check is complete. Stay safe and be prepared!")
+    
+    # Join all the parts into a single formatted string
+    return "\n".join(output)
 
 
 
@@ -582,7 +648,7 @@ MDScreenManager:
 
                 step: 1
                 max: 30
-                min:1
+                min:
                 value: 1
 
                 MDSliderHandle:
@@ -675,15 +741,40 @@ MDScreenManager:
                 width: dp(150)
                 MDButtonText:
                     text: "Go Back"
-
-
             MDButton:
-
                 size_hint_x: None
                 width: dp(150)
-                on_release: app.save_to_csv()
+                on_release:
+                    root.current = "output_page"
+                    app.display_output()
                 MDButtonText:
-                    text: "Enter"
+                    text: "Go to next page"
+    MDScreen:
+        name: "output_page"
+        md_bg_color: self.theme_cls.backgroundColor
+
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint: (1, 1)
+            padding: "10dp"
+
+            ScrollView:
+                MDBoxLayout:
+                    id: output_container
+                    orientation: "vertical"
+                    adaptive_height: True
+                    padding: "10dp"
+
+                    MDLabel:
+                        id: output_label  # Reference this label for dynamic updates
+                        text: "Your output will be displayed here."
+                        halign: "center"
+                        font_size: "16sp"
+                        text_size: self.width, None  # Ensures text wraps to the width of the screen
+                        size_hint_y: None
+                        height: self.texture_size[1]  # Dynamically adjust height to fit the text
+                        theme_text_color: "Primary"
+
 '''
 
 
@@ -757,7 +848,12 @@ class Example(MDApp):
         except Exception as e:
             print(f"Error saving to CSV: {e}")
 
-        help()
+    def display_output(self):
+        """Generate the output and display it on the output page."""
+        # Call the function to get the formatted output string
+        output_text = outputPrint()  # This calls the previously defined outputPrint() function
+        # Update the text of the label on the output page
+        self.root.ids.output_label.text = output_text
 
 
 Example().run()
