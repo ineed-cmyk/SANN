@@ -1,17 +1,20 @@
-
 import csv
-
 from kivy.lang import Builder
 from kivy.properties import StringProperty
 from kivymd.app import MDApp
 from kivymd.uix.card import MDCardSwipe
-
 import mysql.connector
 import math
 
 # Functionality to pretty print dictionaries
 import pprint
 from colorama import Fore, init
+from kivy import Config
+import os
+
+Config.set("graphics", "multisamples", "0")
+os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
+
 
 # Coloured text and pretty print for debug
 init(convert=True, autoreset=True)
@@ -60,7 +63,7 @@ categoryTotals = {
     "Documentation and Emergency Funds": 9,
     "Shelter and Clothing": 9,
     "Water": 100,
-    "Food": 100
+    "Food": 100,
 }
 
 
@@ -383,6 +386,7 @@ def require(kit):
             continue
     return req_it
 
+
 # Running the help statement automatically
 def help():
     print(Fore.GREEN + "Following are all the functions in the code")
@@ -491,82 +495,109 @@ def help():
     )
     print()
 
-from colorama import Fore
-import pprint as pp
 
 def outputPrint():
     output = []
-    output.append(Fore.GREEN + "Welcome! Here’s a summary of your emergency kit evaluation:")
-    output.append("\n")
-    
-    # Daily water and calorie calculation
-    debugText = modifyDaily("./sampleFamilyConfig.csv")
-    output.append(Fore.GREEN + "We’ve adjusted your kit for the size of your group and the number of survival days.")
     output.append(
-        "Based on our calculations, each person will need " + 
-        str(dailyWater) + " ml of water and " + 
-        str(dailyCal) + " calories daily."
+        Fore.GREEN + "Welcome! Here’s a summary of your emergency kit evaluation:"
     )
     output.append("\n")
-    
+
+    # Daily water and calorie calculation
+    debugText = modifyDaily("./sampleFamilyConfig.csv")
+    output.append(
+        Fore.GREEN
+        + "We’ve adjusted your kit for the size of your group and the number of survival days."
+    )
+    output.append(
+        "Based on our calculations, each person will need "
+        + str(dailyWater)
+        + " ml of water and "
+        + str(dailyCal)
+        + " calories daily."
+    )
+    output.append("\n")
+
     # Total water in the kit
     totalWater = getTotWater("./sampleInput.csv")
-    output.append(Fore.GREEN + "Your kit currently contains " + str(totalWater) + " ml of water.")
+    output.append(
+        Fore.GREEN + "Your kit currently contains " + str(totalWater) + " ml of water."
+    )
     output.append("\n")
-    
+
     # Total calories in the kit
     totalFood = getTotCal("./sampleInput.csv")
-    output.append(Fore.GREEN + "Your kit contains " + str(totalFood) + " total calories of food.")
+    output.append(
+        Fore.GREEN + "Your kit contains " + str(totalFood) + " total calories of food."
+    )
     output.append("\n")
-    
+
     # Consumables check
     consumInfo = checkConsumeables(totalFood, totalWater)
     output.append("We’ve checked your food and water supplies.")
     output.append("Here’s a breakdown of what you need to know: " + str(consumInfo))
     output.append("\n")
-    
+
     # Water and calorie contribution to overall score
     calWaterAdd(consumInfo[0][0], consumInfo[1][0])
-    output.append("Water and food contributions have been factored into your overall preparedness score.")
+    output.append(
+        "Water and food contributions have been factored into your overall preparedness score."
+    )
     output.append("\n")
 
     # Percentage of scores by category
     percentagePerCategory()
-    output.append(Fore.GREEN + "Your survival kit's preparedness by category is as follows:")
-    output.append(pp.pformat(categoryPercentage))  # Pretty print dictionary as a formatted string
+    output.append(
+        Fore.GREEN + "Your survival kit's preparedness by category is as follows:"
+    )
+    output.append(
+        pp.pformat(categoryPercentage)
+    )  # Pretty print dictionary as a formatted string
     output.append("\n")
-    
+
     # Weight check
     totalWeight = getTotWeight("./sampleInput.csv")
-    output.append(Fore.GREEN + "The total weight of your kit is " + str(totalWeight) + " grams.")
+    output.append(
+        Fore.GREEN + "The total weight of your kit is " + str(totalWeight) + " grams."
+    )
     output.append("\n")
-    
+
     # Check for weight compliance
     weight_status = checkWeight(totalWeight)
     if weight_status:
         output.append(Fore.GREEN + "Your kit's weight is within acceptable limits.")
     else:
-        output.append(Fore.RED + "Warning: Your kit may be too heavy or too light. Please review the items inside.")
+        output.append(
+            Fore.RED
+            + "Warning: Your kit may be too heavy or too light. Please review the items inside."
+        )
     output.append("\n")
-    
+
     # Recommended items to add
     required_items = require(extract)
     if required_items:
-        output.append(Fore.YELLOW + "Based on our review, you should consider adding the following essential items:")
+        output.append(
+            Fore.YELLOW
+            + "Based on our review, you should consider adding the following essential items:"
+        )
         output.append("\n" + str(required_items))
     else:
-        output.append(Fore.GREEN + "Great news! Your kit is fully stocked with all essential items.")
+        output.append(
+            Fore.GREEN
+            + "Great news! Your kit is fully stocked with all essential items."
+        )
     output.append("\n")
-    
+
     # Final summary message
-    output.append(Fore.GREEN + "Your survival kit check is complete. Stay safe and be prepared!")
-    
+    output.append(
+        Fore.GREEN + "Your survival kit check is complete. Stay safe and be prepared!"
+    )
+
     # Join all the parts into a single formatted string
     return "\n".join(output)
 
 
-
-KV = '''
+KV = """
 
 
 <SwipeToDeleteItem>:
@@ -758,24 +789,24 @@ MDScreenManager:
             size_hint: (1, 1)
             padding: "10dp"
 
-            ScrollView:
-                MDBoxLayout:
-                    id: output_container
-                    orientation: "vertical"
-                    adaptive_height: True
-                    padding: "10dp"
+        ScrollView:
+                    MDBoxLayout:
+                        id: output_container
+                        orientation: "vertical"
+                        adaptive_height: True
+                        padding: "10dp"
 
-                    MDLabel:
-                        id: output_label  # Reference this label for dynamic updates
-                        text: "Your output will be displayed here."
-                        halign: "center"
-                        font_size: "16sp"
-                        text_size: self.width, None  # Ensures text wraps to the width of the screen
-                        size_hint_y: None
-                        height: self.texture_size[1]  # Dynamically adjust height to fit the text
-                        theme_text_color: "Primary"
+                        MDLabel:
+                            id: output_label  # Reference this label for dynamic updates
+                            text: "Your output will be displayed here."
+                            halign: "center"
+                            font_size: "16sp"
+                            text_size: self.width, None  # Ensures text wraps to the width of the screen
+                            size_hint_y: None
+                            height: self.texture_size[1]  # Dynamically adjust height to fit the text
+                            theme_text_color: "Primary"
 
-'''
+"""
 
 
 class SwipeToDeleteItem(MDCardSwipe):
@@ -812,12 +843,13 @@ class Example(MDApp):
             print(f"Error saving to CSV: {e}")
 
     def add_item_widget(self):
-
         user_input = self.root.ids.inputfield.text.strip()
         user_input_No = self.root.ids.secondinputfield.text.strip()
         if user_input and user_input_No:
             self.user_input_list2.append([user_input, user_input_No])
-            self.root.ids.main_scroll.add_widget(SwipeToDeleteItem(text=f"{user_input} X {user_input_No}"))
+            self.root.ids.main_scroll.add_widget(
+                SwipeToDeleteItem(text=f"{user_input} X {user_input_No}")
+            )
 
             self.root.ids.inputfield.text = ""
             self.root.ids.secondinputfield.text = ""
@@ -851,7 +883,9 @@ class Example(MDApp):
     def display_output(self):
         """Generate the output and display it on the output page."""
         # Call the function to get the formatted output string
-        output_text = outputPrint()  # This calls the previously defined outputPrint() function
+        output_text = (
+            outputPrint()
+        )  # This calls the previously defined outputPrint() function
         # Update the text of the label on the output page
         self.root.ids.output_label.text = output_text
 
