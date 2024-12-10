@@ -715,7 +715,7 @@ class Example(MDApp):
                 # Add a header row
                 writer.writerow(["Family Size", "Days to Survive"])
                 # Write each item and quantity to the file
-                writer.writerows([f"{self.max_people}", f"{self.duration}"])
+                writer.writerow([f"{self.max_people}", f"{self.duration}"])
             print(f"Data saved successfully to {filename}")
         except Exception as e:
             print(f"Error saving to CSV: {e}")
