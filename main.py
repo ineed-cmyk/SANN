@@ -1,14 +1,6 @@
-hfrom kivy.lang import Builder
-from kivy.properties import StringProperty
-from kivymd.app import MDApp
-from kivymd.uix.card import MDCardSwipe
-
 import mysql.connector
 import csv
 import math
-
-
-
 # Functionality to pretty print dictionaries
 import pprint
 from colorama import Fore, init
@@ -76,7 +68,7 @@ def modifyDaily(fi):
             familyMembers = i[0]
             days = i[1]
 
-        totalReq = int(familyMembers) * int(days)
+        totalReq = float(familyMembers) * float(days)
 
         dailyWater *= totalReq
         dailyCal *= totalReq
