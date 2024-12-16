@@ -14,7 +14,7 @@ CREATE TABLE utility (
 	MaxPerPerson INT);
 'Flashlight', Batteries(Single AA)
 INSERT INTO utility VALUES
-	('1', 'Flashlight', 'Lighting and Illumination', '9', 'True', '200', '1'),
+	('1', 'Flashlights', 'Lighting and Illumination', '9', 'True', '200', '1'),
 	('2', 'Batteries(Single AA)', 'Power and Batteries', '7', 'False', '30', '2'),
 	('3', 'Radio', 'Tools and Equipment', '8', 'False', '500', '1'),
 	('4', 'Knives', 'Tools and Equipment', '7', 'True', '350', '1'),

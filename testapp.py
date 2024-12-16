@@ -75,7 +75,7 @@ def modifyDaily(fi):
             familyMembers = i[0]
             days = i[1]
 
-        totalReq = int(familyMembers) * int(days)
+        totalReq = float(familyMembers) * float(days)
 
         dailyWater *= totalReq
         dailyCal *= totalReq
@@ -496,73 +496,63 @@ import pprint as pp
 
 def outputPrint():
     output = []
-    output.append(Fore.GREEN + "Welcome! Here’s a summary of your emergency kit evaluation:")
-    output.append("\n")
-    
-    # Daily water and calorie calculation
-    debugText = modifyDaily("./sampleFamilyConfig.csv")
-    output.append(Fore.GREEN + "We’ve adjusted your kit for the size of your group and the number of survival days.")
-    output.append(
-        "Based on our calculations, each person will need " + 
-        str(dailyWater) + " ml of water and " + 
-        str(dailyCal) + " calories daily."
-    )
-    output.append("\n")
-    
-    # Total water in the kit
-    totalWater = getTotWater("./sampleInput.csv")
-    output.append(Fore.GREEN + "Your kit currently contains " + str(totalWater) + " ml of water.")
-    output.append("\n")
-    
-    # Total calories in the kit
-    totalFood = getTotCal("./sampleInput.csv")
-    output.append(Fore.GREEN + "Your kit contains " + str(totalFood) + " total calories of food.")
-    output.append("\n")
-    
-    # Consumables check
-    consumInfo = checkConsumeables(totalFood, totalWater)
-    output.append("We’ve checked your food and water supplies.")
-    output.append("Here’s a breakdown of what you need to know: " + str(consumInfo))
-    output.append("\n")
-    
-    # Water and calorie contribution to overall score
-    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
-    output.append("Water and food contributions have been factored into your overall preparedness score.")
-    output.append("\n")
 
-    # Percentage of scores by category
+    modifyDaily("./sampleFamilyConfig.csv")
+
+    output.append(
+        [
+        "Water Required : ",
+        str(dailyWater),
+        "ml",
+        "Calories Required : ",
+        str(dailyCal),
+        "cal"]
+    )
+
+
+    totalWater = getTotWater("./sampleInput.csv")
+    output.append(["Water in the kit :",str(totalWater)])
+
+    totalFood = getTotCal("./sampleInput.csv")
+    output.append(["Calories in the kit :", str(totalFood)])
+
+    extractKitUtil("./sampleInput.csv")
+
+    consumInfo = checkConsumeables(totalFood, totalWater)
+    output.append([consumInfo])
+
+    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
+
+    sumScore()
+
     percentagePerCategory()
-    output.append(Fore.GREEN + "Your survival kit's preparedness by category is as follows:")
-    output.append(pp.pformat(categoryPercentage))  # Pretty print dictionary as a formatted string
-    output.append("\n")
-    
-    # Weight check
+
+    debugText = weightScore()
+    output.append(debugText)
+    print()
+
+    weightMaxCheck()
+
     totalWeight = getTotWeight("./sampleInput.csv")
-    output.append(Fore.GREEN + "The total weight of your kit is " + str(totalWeight) + " grams.")
-    output.append("\n")
-    
-    # Check for weight compliance
-    weight_status = checkWeight(totalWeight)
-    if weight_status:
-        output.append(Fore.GREEN + "Your kit's weight is within acceptable limits.")
-    else:
-        output.append(Fore.RED + "Warning: Your kit may be too heavy or too light. Please review the items inside.")
-    output.append("\n")
-    
-    # Recommended items to add
-    required_items = require(extract)
-    if required_items:
-        output.append(Fore.YELLOW + "Based on our review, you should consider adding the following essential items:")
-        output.append("\n" + str(required_items))
-    else:
-        output.append(Fore.GREEN + "Great news! Your kit is fully stocked with all essential items.")
-    output.append("\n")
-    
-    # Final summary message
-    output.append(Fore.GREEN + "Your survival kit check is complete. Stay safe and be prepared!")
+
+    output.append(["The total weight of your kit is:", totalWeight, "grams"])
+
+    output.append([checkWeight(totalWeight)])
+
+    output.append(
+        ["Following are required items you should add :", str(require(extract))]
+    )
     
     # Join all the parts into a single formatted string
-    return "\n".join(output)
+
+    # sample = ""
+
+    # for i in output:
+    #     sample += str(i)
+    #     sample += "\n"
+
+    # return str(sample)
+    return output
 
 
 
@@ -726,7 +716,7 @@ MDScreenManager:
                         width: dp(200)
                         on_release: app.add_item_widget()
                         MDButtonText:
-                            text: "Start"
+                            text: "Enter"
         MDBoxLayout:
             size_hint_y: None
             height: dp(60)
@@ -746,6 +736,7 @@ MDScreenManager:
                 width: dp(150)
                 on_release:
                     root.current = "output_page"
+                    app.save_to_csv()
                     app.display_output()
                 MDButtonText:
                     text: "Go to next page"
@@ -753,27 +744,15 @@ MDScreenManager:
         name: "output_page"
         md_bg_color: self.theme_cls.backgroundColor
 
-        MDBoxLayout:
-            orientation: "vertical"
-            size_hint: (1, 1)
-            padding: "10dp"
+        MDScrollView:
 
-            ScrollView:
-                MDBoxLayout:
-                    id: output_container
-                    orientation: "vertical"
-                    adaptive_height: True
-                    padding: "10dp"
+            MDBoxLayout:
+                id: main_scroll2
+                orientation: "vertical"
+                adaptive_height: True
+                padding: dp(16)  
+                spacing: dp(12)  
 
-                    MDLabel:
-                        id: output_label  # Reference this label for dynamic updates
-                        text: "Your output will be displayed here."
-                        halign: "center"
-                        font_size: "16sp"
-                        text_size: self.width, None  # Ensures text wraps to the width of the screen
-                        size_hint_y: None
-                        height: self.texture_size[1]  # Dynamically adjust height to fit the text
-                        theme_text_color: "Primary"
 
 '''
 
@@ -843,17 +822,26 @@ class Example(MDApp):
                 # Add a header row
                 writer.writerow(["Item Name", "Quantity"])
                 # Write each item and quantity to the file
-                writer.writerows(self.user_input_list2)
+                print(self.user_input_list2)
+                for x in self.user_input_list2:
+                    writer.writerow([x[0], x[1]])
             print(f"Data saved successfully to {filename}")
         except Exception as e:
             print(f"Error saving to CSV: {e}")
-
+        help()
     def display_output(self):
         """Generate the output and display it on the output page."""
         # Call the function to get the formatted output string
         output_text = outputPrint()  # This calls the previously defined outputPrint() function
+        print(output_text)
+
+        for x in output_text:
+            
+            self.root.ids.main_scroll2.add_widget(SwipeToDeleteItem(text=f"{x}"))
+
+        
         # Update the text of the label on the output page
-        self.root.ids.output_label.text = output_text
+        #self.root.ids.output_label.text = output_text
 
 
 Example().run()
