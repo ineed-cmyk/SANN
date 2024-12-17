@@ -1,32 +1,9 @@
-import csv
-from kivy.lang import Builder
-from kivy.properties import StringProperty
-from kivymd.app import MDApp
-from kivymd.uix.card import MDCardSwipe
 import mysql.connector
+import csv
 import math
-import io
-import plotly.graph_objects as go
-from kivy.uix.image import Image
-from kivy.core.image import Image as CoreImage
-import kaleido
 # Functionality to pretty print dictionaries
 import pprint
 from colorama import Fore, init
-from kivy import Config
-import os
-
-debugMode = True
-writeFile = "./sampleInput.csv"
-if debugMode :
-    inputFile = "./premadeInput.csv"
-else:
-    inputFile = "./sampleInput.csv"
-
-
-Config.set("graphics", "multisamples", "0")
-os.environ["KIVY_GL_BACKEND"] = "angle_sdl2"
-
 
 # Coloured text and pretty print for debug
 init(convert=True, autoreset=True)
@@ -42,6 +19,7 @@ curs = cnx.cursor()
 # Max weight in grams (13 kg as per data online)
 # We need to fix this to consider large party sizes, maybe more bags?
 maxWeight = 13000
+
 
 # Required amount of calories per day
 """
@@ -74,8 +52,8 @@ categoryTotals = {
     "Hygiene and Sanitation": 31,
     "Documentation and Emergency Funds": 9,
     "Shelter and Clothing": 9,
-    "Water": 100,
-    "Food": 100,
+    "Water" : 100,
+    "Food" : 100
 }
 
 
@@ -139,8 +117,8 @@ categoryPercentage = {
     "Navigation and Signaling": 0,
     "Medical Supplies": 0,
     "Hygiene and Sanitation": 0,
-    "Food": 0,
-    "Water": 0,
+    "Food" : 0,
+    "Water" : 0,
     "Documentation and Emergency Funds": 0,
     "Shelter and Clothing": 0,
 }
@@ -399,7 +377,9 @@ def require(kit):
     return req_it
 
 
-# Running the help statement automatically
+### TRIAL CODE ###
+
+
 def help():
     print(Fore.GREEN + "Following are all the functions in the code")
     print()
@@ -420,19 +400,19 @@ def help():
 
     print(Fore.BLUE + "getTotWater()")
     print("This function gets the total amount of water in the kit")
-    totalWater = getTotWater(inputFile)
+    totalWater = getTotWater("./sampleInput.csv")
     print(Fore.GREEN + "You have this many ml of water :", Fore.GREEN + str(totalWater))
     print()
 
     print(Fore.BLUE + "getTotCal()")
     print("This function gets the total amount of calories in the kit")
-    totalFood = getTotCal(inputFile)
+    totalFood = getTotCal("./sampleInput.csv")
     print(Fore.GREEN + "Total calories in kit :", Fore.GREEN + str(totalFood))
     print()
 
     print(Fore.BLUE + "extractKitUtil()")
     print("This function extracts the given kit from CSV to a python dictionary")
-    extractKitUtil(inputFile)
+    extractKitUtil("./sampleInput.csv")
     print()
 
     print(Fore.BLUE + "checkConsumeables()")
@@ -455,6 +435,7 @@ def help():
     calWaterAdd(consumInfo[0][0], consumInfo[1][0])
     print()
 
+    
     print(Fore.BLUE + "percentagePerCategory()")
     print(
         "This function takes the scores per category and makes them into a percentage. This is our reference values"
@@ -485,7 +466,7 @@ def help():
 
     print(Fore.BLUE + "getTotWeight()")
     print("This function gets the total weight of the kit")
-    totalWeight = getTotWeight(inputFile)
+    totalWeight = getTotWeight("./sampleInput.csv")
     print()
 
     print(Fore.GREEN + "The total weight of your kit is:", totalWeight, "grams")
@@ -507,419 +488,5 @@ def help():
     )
     print()
 
-
-def outputPrint():
-    output = []
-
-    modifyDaily("./sampleFamilyConfig.csv")
-
-    output.append(
-        [
-        "Water Required : ",
-        str(dailyWater),
-        "ml",
-        "Calories Required : ",
-        str(dailyCal),
-        "cal"]
-    )
-
-
-    totalWater = getTotWater(inputFile)
-    output.append(["Water in the kit :",str(totalWater)])
-
-    totalFood = getTotCal(inputFile)
-    output.append(["Calories in the kit :", str(totalFood)])
-
-    extractKitUtil(inputFile)
-
-    consumInfo = checkConsumeables(totalFood, totalWater)
-    output.append([consumInfo])
-
-    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
-
-    sumScore()
-
-    percentagePerCategory()
-
-    debugText = weightScore()
-    output.append(debugText)
-    print()
-
-    weightMaxCheck()
-
-    totalWeight = getTotWeight(inputFile)
-
-    output.append(["The total weight of your kit is:", totalWeight, "grams"])
-
-    output.append([checkWeight(totalWeight)])
-
-    output.append(
-        ["Following are required items you should add :", str(require(extract))]
-    )
-    # Join all the parts into a single formatted string
-
-    # sample = ""
-
-    # for i in output:
-    #     sample += str(i)
-    #     sample += "\n"
-
-    # return str(sample)
-    return output
-
-
-KV = """
-
-
-<SwipeToDeleteItem>:
-    size_hint_y: None
-    height: content.height
-
-    MDCardSwipeLayerBox:
-        padding: "8dp"
-
-        MDIconButton:
-            icon: "trash-can"
-            pos_hint: {"center_y": .5}
-            on_release: app.delete_item(root)
-
-    MDCardSwipeFrontBox:
-
-        MDListItem:
-            id: content
-            _no_ripple_effect: True
-            MDListItemHeadlineText:
-                text:root.text
-
-
-
-MDScreenManager:
-
-
-    MDScreen:
-        name: "front_page"
-        md_bg_color: self.theme_cls.backgroundColor
-        MDIcon:
-            icon: "exit-run"
-            pos_hint: {"center_x": 0.5, "center_y": 0.75}
-            theme_text_color: "Secondary"
-
-        #Text
-        MDLabel:
-            text: "CritKit"
-            halign: "center"
-            pos_hint: {"center_y": 0.6}
-            theme_text_color: "Secondary"
-        #Tagline
-        MDLabel:
-            text: "Assesses how prepared your kit is for any disaster!"
-            halign: "center"
-            pos_hint: {"center_y": 0.53}
-            theme_text_color: "Primary"
-        #Start button
-        MDButton:
-            pos_hint: {"center_x": 0.5, "center_y": 0.4}
-            size_hint: (0.5, 0.08)
-            md_bg_color: 1, 0.5, 0, 1 
-            on_release:
-                app.root.transition.direction = "left"
-                app.root.current = "first_input_page"
-            MDButtonText:
-                text: "Get Started" 
-
-
-    MDScreen:
-        name: "first_input_page"
-        md_bg_color: self.theme_cls.backgroundColor
-        MDLabel:
-            text: "Enter Duration(Days)"
-            pos_hint: {"center_x": .75, "center_y": .69}
-        MDLabel:
-            text: "Enter Max People"
-            pos_hint: {"center_x": .75, "center_y": .47}
-
-        MDBoxLayout:
-            orientation: "vertical"
-            spacing: "80dp"
-            adaptive_height: True
-            size_hint_x: .5
-            pos_hint: {"center_x": .5, "center_y": .6}
-
-            MDSlider:
-                id: duration_slider
-
-                step: 1
-                max: 30
-                min:
-                value: 1
-
-                MDSliderHandle:
-
-                MDSliderValueLabel:
-        MDBoxLayout:
-            orientation: "vertical"
-            spacing: "80dp"
-            adaptive_height: True
-            size_hint_x: .5
-            pos_hint: {"center_x": .5, "center_y": .4}
-
-            MDSlider:
-                id: people_slider
-
-                step: 1
-                max: 15
-                min:1
-                value: 1
-
-                MDSliderHandle:
-
-                MDSliderValueLabel:
-
-        MDButton:
-            style: "outlined"
-            pos_hint: {"center_x": .3, "center_y": .26}
-            on_release:
-                root.current = "front_page"
-            MDButtonText:
-                text: "Back"
-
-        MDButton:
-            style: "filled"
-            pos_hint: {"center_x": .42, "center_y": .26}
-            on_press: 
-                app.save_values()
-                root.current = "second_input_page"
-            MDButtonText:
-                text: "Enter"
-
-    MDScreen:
-        name: "second_input_page"
-        md_bg_color: self.theme_cls.backgroundColor
-
-        MDScrollView:
-            do_scroll_x: False
-
-            MDBoxLayout:
-                id: main_scroll
-                orientation: "vertical"
-                adaptive_height: True
-                padding: dp(16)  
-                spacing: dp(12)  
-
-                MDBoxLayout:
-                    orientation: "horizontal"
-                    adaptive_height: True
-                    spacing: dp(20)  # Adjust spacing between the text field and button
-
-                    MDTextField:
-                        id: inputfield
-                        mode: "outlined"
-                        size_hint_x: None  # Ensure width is used
-                        width: dp(300)
-                    MDTextField:
-                        id: secondinputfield
-                        mode: "outlined"
-                        size_hint_x: None  # Ensure width is used
-                        width: dp(100)
-
-                    MDButton:
-                        size_hint_x: None
-                        width: dp(200)
-                        on_release: app.add_item_widget()
-                        MDButtonText:
-                            text: "Enter"
-        MDBoxLayout:
-            size_hint_y: None
-            height: dp(60)
-            padding: dp(16)
-            spacing: dp(20)
-            pos_hint: {"center_x": 0.5, "y": 0}
-
-            MDButton:            
-                size_hint_x: None
-                on_release:
-                    root.current = "first_input_page"
-                width: dp(150)
-                MDButtonText:
-                    text: "Go Back"
-            MDButton:
-                size_hint_x: None
-                width: dp(150)
-                on_release:
-                    root.current = "output_page"
-                    app.save_to_csv()
-                    app.create_radar_graph()
-                MDButtonText:
-                    text: "Go to next page"
-    MDScreen:
-        name: "output_page"
-        md_bg_color: self.theme_cls.backgroundColor
-
-        MDBoxLayout:
-            orientation: "horizontal"
-            spacing: "10dp"
-            padding: "10dp"
-        
-        # Plotly Graph Section
-        Image:
-            id: radar_image
-            size_hint: 0.5, 1
-
-        # Text Section
-        MDBoxLayout:
-            orientation: "vertical"
-            size_hint: 0.5, 1
-
-            MDLabel:
-                text: "Radar Graph Example"
-                theme_text_color: "Secondary"
-                halign: "center"
-
-            MDLabel:
-                text: "This radar graph shows an example of data visualization side by side with text using Plotly and KivyMD."
-                theme_text_color: "Secondary"
-                halign: "center"
-                padding: "10dp"                      
-"""
-
-
-class SwipeToDeleteItem(MDCardSwipe):
-    text = StringProperty()
-
-
-class Example(MDApp):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.user_input_list2 = []
-
-    def build(self):
-        self.theme_cls.primary_palette = "Antiquewhite"
-        return Builder.load_string(KV)
-
-    def save_values(self, filename="sampleFamilyConfig.csv"):
-        duration = self.root.ids.duration_slider.value
-        max_people = self.root.ids.people_slider.value
-
-        print(f"Duration: {duration} days")
-        print(f"Max People: {max_people}")
-
-        self.duration = duration
-        self.max_people = max_people
-        try:
-            with open(filename, mode="w", newline="") as file:
-                writer = csv.writer(file)
-                # Add a header row
-                writer.writerow(["Family Size", "Days to Survive"])
-                # Write each item and quantity to the file
-                writer.writerow([f"{self.max_people}", f"{self.duration}"])
-            print(f"Data saved successfully to {filename}")
-        except Exception as e:
-            print(f"Error saving to CSV: {e}")
-
-    def add_item_widget(self):
-        user_input = self.root.ids.inputfield.text.strip()
-        user_input_No = self.root.ids.secondinputfield.text.strip()
-        if user_input and user_input_No:
-            self.user_input_list2.append([user_input, user_input_No])
-            self.root.ids.main_scroll.add_widget(
-                SwipeToDeleteItem(text=f"{user_input} X {user_input_No}")
-            )
-
-            self.root.ids.inputfield.text = ""
-            self.root.ids.secondinputfield.text = ""
-
-    def delete_item(self, list_item):
-        """Remove the specified list item."""
-        item_name = list_item.text.split(" X ")[0]
-        for x in self.user_input_list2:
-            if item_name in x[0]:
-                self.user_input_list2.remove(x)
-        self.root.ids.main_scroll.remove_widget(list_item)
-
-        print(self.user_input_list2)
-
-    def save_to_csv(self, filename= writeFile):
-        """
-        Save the user_input_list2 (containing user input and numbers) to a CSV file.
-        :param filename: Name of the file to save data (default: 'user_input.csv').
-        """
-        try:
-            with open(filename, mode="w", newline="") as file:
-                writer = csv.writer(file)
-                # Add a header row
-                writer.writerow(["Item Name", "Quantity"])
-                # Write each item and quantity to the file
-                print(self.user_input_list2)
-                for x in self.user_input_list2:
-                    writer.writerow([x[0], x[1]])
-            print(f"Data saved successfully to {filename}")
-        except Exception as e:
-            print(f"Error saving to CSV: {e}")
-        help()
-
-    def create_radar_graph(self):
-        # Define the radar graph data
-        categories = ["Lighting and Illumination", "Power and Batteries", "Tools and Equipment", "Fire and Warmth", "Navigation and Signaling", "Medical Supplies", "Hygiene and Sanitation","Food","Water","Documentation and Emergency Funds","Shelter and Clothing"]
-        print(len(categories))
-        values = [float(value.strip('%')) for value in categoryPercentage.values()]
-        print(len(values))
-        # Create radar graph with Plotly
-        fig = go.Figure(data=go.Scatterpolar(
-            r=values + [values[0]],  # Close the loop
-            theta=categories + [categories[0]],
-            fill='toself',
-            name='KritikitGraph'
-        ))
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=True)
-            ),
-            showlegend=False
-        )
-
-        # Convert the figure to an image
-        image_bytes = io.BytesIO(fig.to_image(format="png", engine="kaleido"))
-        image_bytes.seek(0)
-
-        # Load image into Kivy
-        core_image = CoreImage(image_bytes, ext="png")
-        self.root.ids.radar_image.texture = core_image.texture
-Example().run()
-
-
-
-extra = '''
-
-        MDScrollView:
-
-            MDBoxLayout:
-                id: main_scroll2
-                orientation: "vertical"
-                adaptive_height: True
-                padding: dp(16)  
-                spacing: dp(12)  
-
-        MDBoxLayout:
-            orientation: "vertical"
-            size_hint: (1, 1)
-            padding: "10dp"
-        ScrollView:
-            MDBoxLayout:
-                id: output_container
-                orientation: "vertical"
-                adaptive_height: True
-                padding: "10dp"
-
-                MDLabel:
-                    id: output_label  # Reference this label for dynamic updates
-                    text: "Your output will be displayed here."
-                    halign: "center"
-                    font_size: "16sp"
-                    text_size: self.width, None  # Ensures text wraps to the width of the screen
-                    size_hint_y: None
-                    height: self.texture_size[1]  # Dynamically adjust height to fit the text
-                    theme_text_color: "Primary"
-
-
-
-'''
+# Running the help statement automatically
+help()

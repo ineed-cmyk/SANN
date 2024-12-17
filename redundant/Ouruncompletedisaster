@@ -1,13 +1,13 @@
-hfrom kivy.lang import Builder
+
+import csv
+
+from kivy.lang import Builder
 from kivy.properties import StringProperty
 from kivymd.app import MDApp
 from kivymd.uix.card import MDCardSwipe
 
 import mysql.connector
-import csv
 import math
-
-
 
 # Functionality to pretty print dictionaries
 import pprint
@@ -27,7 +27,6 @@ curs = cnx.cursor()
 # Max weight in grams (13 kg as per data online)
 # We need to fix this to consider large party sizes, maybe more bags?
 maxWeight = 13000
-
 
 # Required amount of calories per day
 """
@@ -60,8 +59,8 @@ categoryTotals = {
     "Hygiene and Sanitation": 31,
     "Documentation and Emergency Funds": 9,
     "Shelter and Clothing": 9,
-    "Water" : 100,
-    "Food" : 100
+    "Water": 100,
+    "Food": 100
 }
 
 
@@ -76,7 +75,7 @@ def modifyDaily(fi):
             familyMembers = i[0]
             days = i[1]
 
-        totalReq = int(familyMembers) * int(days)
+        totalReq = float(familyMembers) * float(days)
 
         dailyWater *= totalReq
         dailyCal *= totalReq
@@ -125,8 +124,8 @@ categoryPercentage = {
     "Navigation and Signaling": 0,
     "Medical Supplies": 0,
     "Hygiene and Sanitation": 0,
-    "Food" : 0,
-    "Water" : 0,
+    "Food": 0,
+    "Water": 0,
     "Documentation and Emergency Funds": 0,
     "Shelter and Clothing": 0,
 }
@@ -352,8 +351,8 @@ def checkConsumeables(curCal, curWater):
 def calWaterAdd(calPercent, waterPercent):
     global categoryPercentage, categoryScores
 
-    categoryScores["Water"] = waterPercent
-    categoryScores["Food"] = calPercent
+    # categoryScores["Water"] = waterPercent
+    # categoryScores["Food"] = calPercent
 
     categoryPercentage["Water"] = str(waterPercent) + "%"
     categoryPercentage["Food"] = str(calPercent) + "%"
@@ -384,10 +383,7 @@ def require(kit):
             continue
     return req_it
 
-
-### TRIAL CODE ###
-
-
+# Running the help statement automatically
 def help():
     print(Fore.GREEN + "Following are all the functions in the code")
     print()
@@ -443,7 +439,6 @@ def help():
     calWaterAdd(consumInfo[0][0], consumInfo[1][0])
     print()
 
-    
     print(Fore.BLUE + "percentagePerCategory()")
     print(
         "This function takes the scores per category and makes them into a percentage. This is our reference values"
@@ -496,5 +491,355 @@ def help():
     )
     print()
 
-# Running the help statement automatically
-help()
+from colorama import Fore
+import pprint as pp
+
+def outputPrint():
+    output = []
+
+    modifyDaily("./sampleFamilyConfig.csv")
+
+    output.append(
+        [
+        "Evaluated amount for party and days -> Water : ",
+        str(dailyWater),
+        "Calories : ",
+        str(dailyCal),
+        "\n"]
+    )
+
+
+    totalWater = getTotWater("./sampleInput.csv")
+    output.append(["You have this many ml of water :",str(totalWater)])
+
+    totalFood = getTotCal("./sampleInput.csv")
+    output.append(["Total calories in kit :", str(totalFood)])
+
+    output.append("This function extracts the given kit from CSV to a python dictionary")
+    extractKitUtil("./sampleInput.csv")
+
+    consumInfo = checkConsumeables(totalFood, totalWater)
+    output.append([consumInfo])
+
+    sumScore()
+
+    calWaterAdd(consumInfo[0][0], consumInfo[1][0])
+
+    percentagePerCategory()
+
+    debugText = weightScore()
+    output.append(debugText)
+    print()
+
+    weightMaxCheck()
+
+    totalWeight = getTotWeight("./sampleInput.csv")
+
+    output.append(["The total weight of your kit is:", totalWeight, "grams"])
+
+    output.append([checkWeight(totalWeight)])
+
+    output.append(
+        ["Following are required items you should add : \n", str(require(extract))]
+    )
+    
+    # Join all the parts into a single formatted string
+    return str(output)
+
+
+
+KV = '''
+
+
+<SwipeToDeleteItem>:
+    size_hint_y: None
+    height: content.height
+
+    MDCardSwipeLayerBox:
+        padding: "8dp"
+
+        MDIconButton:
+            icon: "trash-can"
+            pos_hint: {"center_y": .5}
+            on_release: app.delete_item(root)
+
+    MDCardSwipeFrontBox:
+
+        MDListItem:
+            id: content
+            _no_ripple_effect: True
+            MDListItemHeadlineText:
+                text:root.text
+
+
+
+MDScreenManager:
+
+
+    MDScreen:
+        name: "front_page"
+        md_bg_color: self.theme_cls.backgroundColor
+        MDIcon:
+            icon: "exit-run"
+            pos_hint: {"center_x": 0.5, "center_y": 0.75}
+            theme_text_color: "Secondary"
+
+        #Text
+        MDLabel:
+            text: "CritKit"
+            halign: "center"
+            pos_hint: {"center_y": 0.6}
+            theme_text_color: "Secondary"
+        #Tagline
+        MDLabel:
+            text: "Assesses how prepared your kit is for any disaster!"
+            halign: "center"
+            pos_hint: {"center_y": 0.53}
+            theme_text_color: "Primary"
+        #Start button
+        MDButton:
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            size_hint: (0.5, 0.08)
+            md_bg_color: 1, 0.5, 0, 1 
+            on_release:
+                app.root.transition.direction = "left"
+                app.root.current = "first_input_page"
+            MDButtonText:
+                text: "Get Started" 
+
+
+    MDScreen:
+        name: "first_input_page"
+        md_bg_color: self.theme_cls.backgroundColor
+        MDLabel:
+            text: "Enter Duration(Days)"
+            pos_hint: {"center_x": .75, "center_y": .69}
+        MDLabel:
+            text: "Enter Max People"
+            pos_hint: {"center_x": .75, "center_y": .47}
+
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: "80dp"
+            adaptive_height: True
+            size_hint_x: .5
+            pos_hint: {"center_x": .5, "center_y": .6}
+
+            MDSlider:
+                id: duration_slider
+
+                step: 1
+                max: 30
+                min:
+                value: 1
+
+                MDSliderHandle:
+
+                MDSliderValueLabel:
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: "80dp"
+            adaptive_height: True
+            size_hint_x: .5
+            pos_hint: {"center_x": .5, "center_y": .4}
+
+            MDSlider:
+                id: people_slider
+
+                step: 1
+                max: 15
+                min:1
+                value: 1
+
+                MDSliderHandle:
+
+                MDSliderValueLabel:
+
+        MDButton:
+            style: "outlined"
+            pos_hint: {"center_x": .3, "center_y": .26}
+            on_release:
+                root.current = "front_page"
+            MDButtonText:
+                text: "Back"
+
+        MDButton:
+            style: "filled"
+            pos_hint: {"center_x": .42, "center_y": .26}
+            on_press: 
+                app.save_values()
+                root.current = "second_input_page"
+            MDButtonText:
+                text: "Enter"
+
+    MDScreen:
+        name: "second_input_page"
+        md_bg_color: self.theme_cls.backgroundColor
+
+
+        MDScrollView:
+            do_scroll_x: False
+
+            MDBoxLayout:
+                id: main_scroll
+                orientation: "vertical"
+                adaptive_height: True
+                padding: dp(16)  
+                spacing: dp(12)  
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    adaptive_height: True
+                    spacing: dp(20)  # Adjust spacing between the text field and button
+
+                    MDTextField:
+                        id: inputfield
+                        mode: "outlined"
+                        size_hint_x: None  # Ensure width is used
+                        width: dp(300)
+                    MDTextField:
+                        id: secondinputfield
+                        mode: "outlined"
+                        size_hint_x: None  # Ensure width is used
+                        width: dp(100)
+
+                    MDButton:
+                        size_hint_x: None
+                        width: dp(200)
+                        on_release: app.add_item_widget()
+                        MDButtonText:
+                            text: "Enter"
+        MDBoxLayout:
+            size_hint_y: None
+            height: dp(60)
+            padding: dp(16)
+            spacing: dp(20)
+            pos_hint: {"center_x": 0.5, "y": 0}
+
+            MDButton:            
+                size_hint_x: None
+                on_release:
+                    root.current = "first_input_page"
+                width: dp(150)
+                MDButtonText:
+                    text: "Go Back"
+            MDButton:
+                size_hint_x: None
+                width: dp(150)
+                on_release:
+                    root.current = "output_page"
+                    app.display_output()
+                    app.save_to_csv()
+                MDButtonText:
+                    text: "Go to next page"
+    MDScreen:
+        name: "output_page"
+        md_bg_color: self.theme_cls.backgroundColor
+
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint: (1, 1)
+            padding: "10dp"
+
+            ScrollView:
+                MDBoxLayout:
+                    id: output_container
+                    orientation: "vertical"
+                    adaptive_height: True
+                    padding: "10dp"
+
+                    MDLabel:
+                        id: output_label  # Reference this label for dynamic updates
+                        text: "Your output will be displayed here."
+                        halign: "center"
+                        font_size: "16sp"
+                        text_size: self.width, None  # Ensures text wraps to the width of the screen
+                        size_hint_y: None
+                        height: self.texture_size[1]  # Dynamically adjust height to fit the text
+                        theme_text_color: "Primary"
+
+'''
+
+
+class SwipeToDeleteItem(MDCardSwipe):
+    text = StringProperty()
+
+
+class Example(MDApp):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_input_list2 = []
+
+    def build(self):
+        self.theme_cls.primary_palette = "Antiquewhite"
+        return Builder.load_string(KV)
+
+    def save_values(self, filename="sampleFamilyConfig.csv"):
+        duration = self.root.ids.duration_slider.value
+        max_people = self.root.ids.people_slider.value
+
+        print(f"Duration: {duration} days")
+        print(f"Max People: {max_people}")
+
+        self.duration = duration
+        self.max_people = max_people
+        try:
+            with open(filename, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                # Add a header row
+                writer.writerow(["Family Size", "Days to Survive"])
+                # Write each item and quantity to the file
+                writer.writerow([f"{self.max_people}", f"{self.duration}"])
+            print(f"Data saved successfully to {filename}")
+        except Exception as e:
+            print(f"Error saving to CSV: {e}")
+
+    def add_item_widget(self):
+
+        user_input = self.root.ids.inputfield.text.strip()
+        user_input_No = self.root.ids.secondinputfield.text.strip()
+        if user_input and user_input_No:
+            self.user_input_list2.append([user_input, user_input_No])
+            self.root.ids.main_scroll.add_widget(SwipeToDeleteItem(text=f"{user_input} X {user_input_No}"))
+
+            self.root.ids.inputfield.text = ""
+            self.root.ids.secondinputfield.text = ""
+
+    def delete_item(self, list_item):
+        """Remove the specified list item."""
+        item_name = list_item.text.split(" X ")[0]
+        for x in self.user_input_list2:
+            if item_name in x[0]:
+                self.user_input_list2.remove(x)
+        self.root.ids.main_scroll.remove_widget(list_item)
+
+        print(self.user_input_list2)
+
+    def save_to_csv(self, filename="sampleInput.csv"):
+        """
+        Save the user_input_list2 (containing user input and numbers) to a CSV file.
+        :param filename: Name of the file to save data (default: 'user_input.csv').
+        """
+        try:
+            with open(filename, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                # Add a header row
+                writer.writerow(["Item Name", "Quantity"])
+                # Write each item and quantity to the file
+                print(self.user_input_list2)
+                for x in self.user_input_list2:
+
+                    writer.writerow([x[0], x[1]])
+            print(f"Data saved successfully to {filename}")
+        except Exception as e:
+            print(f"Error saving to CSV: {e}")
+        help()
+    def display_output(self):
+        """Generate the output and display it on the output page."""
+        # Call the function to get the formatted output string
+        output_text = outputPrint()  # This calls the previously defined outputPrint() function
+        # Update the text of the label on the output page
+        self.root.ids.output_label.text = output_text
+
+
+Example().run()
